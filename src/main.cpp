@@ -7,7 +7,7 @@
 #include <gl3w/GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
-// Prgram src header
+// Program src header
 #include "shaderutil/ShaderUtil.h"
 
 /* фад╩©М╤х */
@@ -31,7 +31,7 @@ void preDraw() {
   glClearBufferfv(GL_COLOR, 0, CLEAR_COLOR);
 }
 
-void Draw() {
+void draw() {
   glBindVertexArray(vao);
   glEnableVertexAttribArray(0);
   glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -107,7 +107,7 @@ void mainLoop() {
   while (!glfwWindowShouldClose(window))
   {
     preDraw();
-    Draw();
+    draw();
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
