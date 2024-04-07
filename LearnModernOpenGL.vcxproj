@@ -102,6 +102,20 @@
       <AdditionalLibraryDirectories>$(ProjectDir)lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>call $(ProjectDir)post_build_event.bat</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>拷贝data文件夹到bin文件夹下。</Message>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -121,6 +135,20 @@
       <AdditionalLibraryDirectories>$(ProjectDir)lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>call $(ProjectDir)post_build_event.bat</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>拷贝data文件夹到bin文件夹下。</Message>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -136,6 +164,20 @@
       <AdditionalLibraryDirectories>$(ProjectDir)lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>call $(ProjectDir)post_build_event.bat</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>拷贝data文件夹到bin文件夹下。</Message>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -155,10 +197,24 @@
       <AdditionalLibraryDirectories>$(ProjectDir)lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>call $(ProjectDir)post_build_event.bat</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>拷贝data文件夹到bin文件夹下。</Message>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\shaderutil\ShaderUtil.cpp" />
     <ClCompile Include="src\gl3w\gl3w.c" />
-    <ClCompile Include="src\LoadShaders.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -167,14 +223,18 @@
     <ClInclude Include="include\gl3w\KHR\khrplatform.h" />
     <ClInclude Include="include\GLFW\glfw3.h" />
     <ClInclude Include="include\GLFW\glfw3native.h" />
-    <ClInclude Include="include\LoadShaders.h" />
-    <ClInclude Include="include\vgl.h" />
+    <ClInclude Include="src\shaderutil\ShaderUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
+    <None Include="bin\data\shaders\frag.glsl" />
+    <None Include="bin\data\shaders\vert.glsl" />
+    <None Include="data\shaders\frag.glsl" />
+    <None Include="data\shaders\vert.glsl" />
     <None Include="Readme.md" />
     <None Include="shaders\frag.glsl" />
     <None Include="shaders\vert.glsl" />
+    <None Include="post_build_event.bat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

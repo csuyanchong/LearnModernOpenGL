@@ -1,13 +1,14 @@
-// STL
+// Standard library header
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <vector>
 
 // Third-party library
-#include "vgl.h"
-#include "LoadShaders.h"
+#include <gl3w/GL/gl3w.h>
+#include <GLFW/glfw3.h>
+
+// Prgram src header
+#include "shaderutil/ShaderUtil.h"
 
 /* 屏幕宽度 */
 static const int SCREEN_WIDTH = 1024;
@@ -23,6 +24,8 @@ GLuint vao = 0;
 
 // 顶点缓存对象
 GLuint vbo = 0;
+
+static const std::string VERTEX_SHADER_PATH = "";
 
 void preDraw() {
   glClearBufferfv(GL_COLOR, 0, CLEAR_COLOR);
@@ -80,15 +83,20 @@ void createVertexData() {
 }
 
 void createGraphicPipeline() {
-  GLint program = 0;
-  ShaderInfo  shaders[] =
-  {
-    { GL_VERTEX_SHADER, "shader/vert.glsl" },
-    { GL_FRAGMENT_SHADER, "shader/frag.glsl" },
-    { GL_NONE, NULL }
+  GLuint program = 0;
+  std::vector<ShaderInfo> shaders;
+  ShaderInfo vertInfo = {
+    GL_VERTEX_SHADER, "./data/shaders/vert.glsl"
   };
 
-  program = LoadShaders(shaders);
+  ShaderInfo fragInfo = {
+    GL_FRAGMENT_SHADER, "./data/shaders/frag.glsl" 
+  };
+
+  shaders.push_back(vertInfo);
+  shaders.push_back(fragInfo);
+
+  program = loadShader(shaders);
   glUseProgram(program);
 }
 
@@ -110,7 +118,7 @@ void cleanUp() {
   glfwTerminate();
 }
 
-int main() {
+int main(int argc, char* argv[]) {
   // 1.初始化设置
   initSetup();
   // 2.创建顶点数据

@@ -21,17 +21,11 @@
     <ClCompile Include="src\gl3w\gl3w.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\LoadShaders.cpp">
+    <ClCompile Include="src\shaderutil\ShaderUtil.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\LoadShaders.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="include\vgl.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="include\GLFW\glfw3.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -47,11 +41,21 @@
     <ClInclude Include="include\gl3w\KHR\khrplatform.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\shaderutil\ShaderUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.md" />
     <None Include=".gitignore" />
     <None Include="shaders\vert.glsl" />
     <None Include="shaders\frag.glsl" />
+    <None Include="bin\data\shaders\frag.glsl" />
+    <None Include="bin\data\shaders\vert.glsl" />
+    <None Include="data\shaders\frag.glsl" />
+    <None Include="data\shaders\vert.glsl" />
+    <None Include="post_build_event.bat">
+      <Filter>源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>
