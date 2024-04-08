@@ -19,13 +19,17 @@ static const GLfloat CLEAR_COLOR[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 /* 窗口 */
 GLFWwindow* window;
 
-// 顶点数组对象
+/* 顶点数组对象 */
 GLuint vao = 0;
+/* 顶点缓存对象 */
+std::vector<GLuint> vbo(3);
 
-// 顶点缓存对象
-GLuint vbo = 0;
-
-static const std::string VERTEX_SHADER_PATH = "";
+/* 顶点位置 */
+std::vector<GLfloat> verticesPosition;
+/* 顶点颜色 */
+std::vector<GLubyte> verticesColor;
+/* 顶点索引 */
+std::vector<GLuint> verticesIndex;
 
 void preDraw() {
   glClearBufferfv(GL_COLOR, 0, CLEAR_COLOR);
@@ -34,7 +38,10 @@ void preDraw() {
 void draw() {
   glBindVertexArray(vao);
   glEnableVertexAttribArray(0);
-  glDrawArrays(GL_TRIANGLES, 0, 3);
+  glEnableVertexAttribArray(1);
+  glEnableVertexAttribArray(2);
+
+  glDrawElements(GL_TRIANGLES, verticesIndex.size(), GL_UNSIGNED_INT, NULL);
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -66,20 +73,44 @@ void createVertexData() {
   glBindVertexArray(vao);
 
   // 指定顶点数据
-  std::vector<GLfloat> vertices = { 
+  verticesPosition = { 
     -0.5f, -0.5f, // 左下角
     0.5f, -0.5f, // 右下角
-    0, 0.5f // 上方
+    0, 0.5f, // 上方
   };
 
-  // 创建vbo
-  glGenBuffers(1, &vbo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
+  verticesColor = {
+    255, 0, 0, // 红色
+    0, 255, 0, // 绿色
+    0, 0, 255 // 蓝色
+  };
+
+  verticesIndex = {
+    0, 1, 2
+  };
+
+  // 顶点位置缓冲
+  glGenBuffers(vbo.size(), vbo.data());
+  glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+  glBufferData(GL_ARRAY_BUFFER, verticesPosition.size() * sizeof(GLfloat), verticesPosition.data(), GL_STATIC_DRAW);
 
   // 向vao解释attribute对应的缓存内容
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
   glDisableVertexAttribArray(0);
+
+  // 顶点颜色缓冲
+  glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+  glBufferData(GL_ARRAY_BUFFER, verticesColor.size() * sizeof(GLubyte), verticesColor.data(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
+  glDisableVertexAttribArray(1);
+
+  // 索引缓冲
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[2]);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, verticesIndex.size() * sizeof(GLuint), verticesIndex.data(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(2, 3, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
+  glDisableVertexAttribArray(2);
 }
 
 void createGraphicPipeline() {
