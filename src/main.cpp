@@ -31,8 +31,35 @@ std::vector<GLubyte> verticesColor;
 /* 顶点索引 */
 std::vector<GLuint> verticesIndex;
 
+/* 图形管线 */
+GLuint programPipeline;
+
+GLfloat uOffsetX = 0;
+GLfloat uOffsetY = 0;
+
+
 void preDraw() {
   glClearBufferfv(GL_COLOR, 0, CLEAR_COLOR);
+
+  // 使用图形管线
+  glUseProgram(programPipeline);
+
+  // 查询并修改全局变量
+  GLint location_uniform_OffsetX = glGetUniformLocation(programPipeline, "uOffsetX");
+  if (location_uniform_OffsetX != -1) {
+    glUniform1f(location_uniform_OffsetX, uOffsetX);
+  }
+  else {
+    std::cout << "查询全局变量uOffsetX没找到，可能拼写错误！" << std::endl;
+  }
+
+  GLint location_uniform_OffsetY = glGetUniformLocation(programPipeline, "uOffsetY");
+  if (location_uniform_OffsetY != -1) {
+    glUniform1f(location_uniform_OffsetY, uOffsetY);
+  }
+  else {
+    std::cout << "查询全局变量uOffsetY没找到，可能拼写错误！" << std::endl;
+  }
 }
 
 void draw() {
@@ -41,12 +68,24 @@ void draw() {
   glEnableVertexAttribArray(1);
   glEnableVertexAttribArray(2);
 
-  glDrawElements(GL_TRIANGLES, verticesIndex.size(), GL_UNSIGNED_INT, NULL);
+  glDrawElements(GL_TRIANGLES, (GLsizei)verticesIndex.size(), GL_UNSIGNED_INT, NULL);
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
+  }
+  else if (key == GLFW_KEY_LEFT) {
+    uOffsetX -= 0.01f;
+  }
+  else if (key == GLFW_KEY_RIGHT) {
+    uOffsetX += 0.01f;
+  }
+  else if (key == GLFW_KEY_UP) {
+    uOffsetY += 0.01f;
+  }
+  else if (key == GLFW_KEY_DOWN) {
+    uOffsetY -= 0.01f;
   }
 }
 
@@ -65,6 +104,9 @@ void initSetup() {
   glfwMakeContextCurrent(window);
   // 初始化gl3w
   gl3wInit();
+  // 键盘事件回调
+  glfwSetKeyCallback(window, key_callback);
+  glfwSetFramebufferSizeCallback(window, frame_buffer_size_callback);
 }
 
 void createVertexData() {
@@ -73,10 +115,11 @@ void createVertexData() {
   glBindVertexArray(vao);
 
   // 指定顶点数据
-  verticesPosition = { 
-    -0.5f, -0.5f, // 左下角
-    0.5f, -0.5f, // 右下角
-    0, 0.5f, // 上方
+  verticesPosition = {
+    -0.5f, 0.5f,
+    -0.5f, -0.5f,
+    0.5f, -0.5f,
+    0.5f, 0.5f
   };
 
   verticesColor = {
@@ -86,11 +129,11 @@ void createVertexData() {
   };
 
   verticesIndex = {
-    0, 1, 2
+    0, 1, 2, 0, 2, 3
   };
 
   // 顶点位置缓冲
-  glGenBuffers(vbo.size(), vbo.data());
+  glGenBuffers((GLsizei)vbo.size(), vbo.data());
   glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
   glBufferData(GL_ARRAY_BUFFER, verticesPosition.size() * sizeof(GLfloat), verticesPosition.data(), GL_STATIC_DRAW);
 
@@ -114,7 +157,6 @@ void createVertexData() {
 }
 
 void createGraphicPipeline() {
-  GLuint program = 0;
   std::vector<ShaderInfo> shaders;
   ShaderInfo vertInfo = {
     GL_VERTEX_SHADER, "./data/shaders/vert.glsl"
@@ -127,14 +169,10 @@ void createGraphicPipeline() {
   shaders.push_back(vertInfo);
   shaders.push_back(fragInfo);
 
-  program = loadShader(shaders);
-  glUseProgram(program);
+  programPipeline = loadShader(shaders);
 }
 
 void mainLoop() {
-  glfwSetKeyCallback(window, key_callback);
-  glfwSetFramebufferSizeCallback(window, frame_buffer_size_callback);
-
   while (!glfwWindowShouldClose(window))
   {
     preDraw();
