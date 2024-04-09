@@ -15,6 +15,8 @@
 
 // Program src header
 #include "shaderutil/ShaderUtil.h"
+#include "camera/Camera.h"
+
 
 /* 屏幕宽度 */
 static const int SCREEN_WIDTH = 1024;
@@ -50,6 +52,12 @@ GLfloat rotation = 0;
 GLfloat forward = -2.0f;
 GLfloat scale = 1.0f;
 
+/* 主摄像机 */
+Camera camMain;
+
+GLfloat moveCamVerticalSpeed = 0.1f;
+GLfloat moveCamHorizenSpeed = 0.1f;
+
 void preDraw() {
   glClearBufferfv(GL_COLOR, 0, CLEAR_COLOR);
 
@@ -64,9 +72,12 @@ void preDraw() {
 
   model = glm::scale(model, glm::vec3(scale));
 
-  glm::mat4x4 project = glm::perspective(FOV, (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
 
-  glm::mat4 mvp = project * model;
+  glm::mat4 view = camMain.getViewMatrix();
+
+  glm::mat4 project = glm::perspective(FOV, (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
+
+  glm::mat4 mvp = project * view * model;
 
   // 查询并修改全局变量
   GLint location_uniform_projMat = glGetUniformLocation(programPipeline, "uMVP");
@@ -92,6 +103,20 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
+  if (key == GLFW_KEY_W) {
+    camMain.moveForward(moveCamVerticalSpeed);
+  }
+  if (key == GLFW_KEY_S) {
+    camMain.moveBack(moveCamVerticalSpeed);
+  }
+
+  if (key == GLFW_KEY_A) {
+    camMain.moveLeft(moveCamHorizenSpeed);
+  }
+  if (key == GLFW_KEY_D) {
+    camMain.moveRight(moveCamHorizenSpeed);
+  }
+
   if (key == GLFW_KEY_LEFT) {
     rotation -= 5.0f;
   }
@@ -192,7 +217,7 @@ void createGraphicPipeline() {
   };
 
   ShaderInfo fragInfo = {
-    GL_FRAGMENT_SHADER, "./data/shaders/frag.glsl" 
+    GL_FRAGMENT_SHADER, "./data/shaders/frag.glsl"
   };
 
   shaders.push_back(vertInfo);
