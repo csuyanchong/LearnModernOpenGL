@@ -105,12 +105,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     forward -= 0.1f;
   }
   if (key == GLFW_KEY_T) {
-    scale += 0.1;
+    scale += 0.1f;
     scale = fmin(scale, 2.0f);
   }
   if (key == GLFW_KEY_G) {
-    scale -= 0.1;
-    scale = fmaxf(scale, 0.2);
+    scale -= 0.1f;
+    scale = fmaxf(scale, 0.2f);
   }
   if (key == GLFW_KEY_N)
   {
