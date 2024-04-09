@@ -20,4 +20,4 @@ private:
 };
 
 
-#endif SRC_CAMERA_CAMERA_H_
+#endif // !SRC_CAMERA_CAMERA_H_
