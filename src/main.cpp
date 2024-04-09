@@ -2,10 +2,16 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 // Third-party library
 #include <gl3w/GL/gl3w.h>
 #include <GLFW/glfw3.h>
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/ext/scalar_constants.hpp>
 
 // Program src header
 #include "shaderutil/ShaderUtil.h"
@@ -34,9 +40,15 @@ std::vector<GLuint> verticesIndex;
 /* 图形管线 */
 GLuint programPipeline;
 
-GLfloat uOffsetX = 0;
-GLfloat uOffsetY = 0;
+/* 透视投影 */
+GLfloat FOV = 45.0f;
+GLfloat NEAR_CLIP_PLANE = 0.1f;
+GLfloat FAR_CLIP_PLANE = 100.0f;
 
+/* 变换 */
+GLfloat rotation = 0;
+GLfloat forward = -2.0f;
+GLfloat scale = 1.0f;
 
 void preDraw() {
   glClearBufferfv(GL_COLOR, 0, CLEAR_COLOR);
@@ -44,21 +56,26 @@ void preDraw() {
   // 使用图形管线
   glUseProgram(programPipeline);
 
-  // 查询并修改全局变量
-  GLint location_uniform_OffsetX = glGetUniformLocation(programPipeline, "uOffsetX");
-  if (location_uniform_OffsetX != -1) {
-    glUniform1f(location_uniform_OffsetX, uOffsetX);
-  }
-  else {
-    std::cout << "查询全局变量uOffsetX没找到，可能拼写错误！" << std::endl;
-  }
+  glm::mat4 model = glm::mat4(1.0f);
 
-  GLint location_uniform_OffsetY = glGetUniformLocation(programPipeline, "uOffsetY");
-  if (location_uniform_OffsetY != -1) {
-    glUniform1f(location_uniform_OffsetY, uOffsetY);
+  model = glm::translate(model, glm::vec3(0, 0, forward));
+
+  model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 1.0f, 0));
+
+  model = glm::scale(model, glm::vec3(scale));
+
+  glm::mat4x4 project = glm::perspective(FOV, (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
+
+  glm::mat4 mvp = project * model;
+
+  // 查询并修改全局变量
+  GLint location_uniform_projMat = glGetUniformLocation(programPipeline, "uMVP");
+  if (location_uniform_projMat != -1) {
+    glUniformMatrix4fv(location_uniform_projMat, 1, GL_FALSE, &mvp[0][0]);
   }
   else {
-    std::cout << "查询全局变量uOffsetY没找到，可能拼写错误！" << std::endl;
+    std::cout << "查询全局变量projMat没找到，可能拼写错误！" << std::endl;
+    exit(EXIT_FAILURE);
   }
 }
 
@@ -75,17 +92,29 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
-  else if (key == GLFW_KEY_LEFT) {
-    uOffsetX -= 0.01f;
+  if (key == GLFW_KEY_LEFT) {
+    rotation -= 5.0f;
   }
-  else if (key == GLFW_KEY_RIGHT) {
-    uOffsetX += 0.01f;
+  if (key == GLFW_KEY_RIGHT) {
+    rotation += 5.0f;
   }
-  else if (key == GLFW_KEY_UP) {
-    uOffsetY += 0.01f;
+  if (key == GLFW_KEY_UP) {
+    forward += 0.1f;
   }
-  else if (key == GLFW_KEY_DOWN) {
-    uOffsetY -= 0.01f;
+  if (key == GLFW_KEY_DOWN) {
+    forward -= 0.1f;
+  }
+  if (key == GLFW_KEY_T) {
+    scale += 0.1;
+    scale = fmin(scale, 2.0f);
+  }
+  if (key == GLFW_KEY_G) {
+    scale -= 0.1;
+    scale = fmaxf(scale, 0.2);
+  }
+  if (key == GLFW_KEY_N)
+  {
+    scale = 1;
   }
 }
 
