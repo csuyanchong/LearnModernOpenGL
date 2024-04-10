@@ -16,6 +16,7 @@
 // Program src header
 #include "shaderutil/ShaderUtil.h"
 #include "camera/Camera.h"
+#include "mesh/BasicMesh.h"
 
 
 /* 屏幕宽度 */
@@ -57,6 +58,12 @@ Camera camMain;
 
 GLfloat moveCamVerticalSpeed = 0.1f;
 GLfloat moveCamHorizenSpeed = 0.1f;
+
+/* 模型文件地址 */
+const std::string MODELS_DIR = "./data/models/objmodel/";
+std::string nameModel = "teapot.obj";
+
+std::string pathModel = MODELS_DIR + nameModel;
 
 void preDraw() {
   glClearBufferfv(GL_COLOR, 0, CLEAR_COLOR);
@@ -167,6 +174,14 @@ void createVertexData() {
   // 创建vao
   glGenVertexArrays(1, &vao);
   glBindVertexArray(vao);
+
+  // 加载模型文件
+  BasicMesh mesh;
+  bool res = mesh.loadMeshFromFile(pathModel);
+  if (!res) {
+    std::cout << "从路径" + pathModel + "加载模型失败！";
+    exit(EXIT_FAILURE);
+  }
 
   // 指定顶点数据
   verticesPosition = {
