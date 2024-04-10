@@ -70,6 +70,9 @@ void preDraw() {
 
   // 使用图形管线
   glUseProgram(programPipeline);
+  glBindVertexArray(vao);
+  glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
 
   glm::mat4 model = glm::mat4(1.0f);
 
@@ -98,11 +101,6 @@ void preDraw() {
 }
 
 void draw() {
-  glBindVertexArray(vao);
-  glEnableVertexAttribArray(0);
-  glEnableVertexAttribArray(1);
-  glEnableVertexAttribArray(2);
-
   glDrawElements(GL_TRIANGLES, (GLsizei)verticesIndex.size(), GL_UNSIGNED_INT, NULL);
 }
 
@@ -221,8 +219,8 @@ void createVertexData() {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[2]);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, verticesIndex.size() * sizeof(GLuint), verticesIndex.data(), GL_STATIC_DRAW);
 
-  glVertexAttribPointer(2, 3, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
-  glDisableVertexAttribArray(2);
+  //glVertexAttribPointer(2, 3, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
+  //glDisableVertexAttribArray(2);
 }
 
 void createGraphicPipeline() {
