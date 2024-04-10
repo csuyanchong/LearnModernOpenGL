@@ -107,7 +107,7 @@
       <Command>call $(ProjectDir)post_build_event.bat</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>拷贝data文件夹到bin文件夹下。</Message>
+      <Message>执行批处理文件post_build_event.bat</Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -141,7 +141,7 @@
       <Command>call $(ProjectDir)post_build_event.bat</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>拷贝data文件夹到bin文件夹下。</Message>
+      <Message>执行批处理文件post_build_event.bat</Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -171,7 +171,7 @@
       <Command>call $(ProjectDir)post_build_event.bat</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>拷贝data文件夹到bin文件夹下。</Message>
+      <Message>执行批处理文件post_build_event.bat</Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -205,7 +205,7 @@
       <Command>call $(ProjectDir)post_build_event.bat</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>拷贝data文件夹到bin文件夹下。</Message>
+      <Message>执行批处理文件post_build_event.bat</Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -218,6 +218,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\camera\Camera.cpp" />
+    <ClCompile Include="src\mesh\BasicMesh.cpp" />
     <ClCompile Include="src\shaderutil\ShaderUtil.cpp" />
     <ClCompile Include="src\gl3w\gl3w.c" />
     <ClCompile Include="src\main.cpp" />
@@ -229,6 +230,7 @@
     <ClInclude Include="include\gl3w\KHR\khrplatform.h" />
     <ClInclude Include="include\GLFW\glfw3.h" />
     <ClInclude Include="include\GLFW\glfw3native.h" />
+    <ClInclude Include="src\mesh\BasicMesh.h" />
     <ClInclude Include="src\shaderutil\ShaderUtil.h" />
   </ItemGroup>
   <ItemGroup>
