@@ -217,20 +217,22 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\model\Model.cpp" />
     <ClCompile Include="src\camera\Camera.cpp" />
-    <ClCompile Include="src\mesh\BasicMesh.cpp" />
+    <ClCompile Include="src\mesh\Mesh.cpp" />
     <ClCompile Include="src\shaderutil\ShaderUtil.cpp" />
     <ClCompile Include="src\gl3w\gl3w.c" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\model\Model.h" />
     <ClInclude Include="src\camera\Camera.h" />
     <ClInclude Include="include\gl3w\GL\gl3w.h" />
     <ClInclude Include="include\gl3w\GL\glcorearb.h" />
     <ClInclude Include="include\gl3w\KHR\khrplatform.h" />
     <ClInclude Include="include\GLFW\glfw3.h" />
     <ClInclude Include="include\GLFW\glfw3native.h" />
-    <ClInclude Include="src\mesh\BasicMesh.h" />
+    <ClInclude Include="src\mesh\Mesh.h" />
     <ClInclude Include="src\shaderutil\ShaderUtil.h" />
   </ItemGroup>
   <ItemGroup>

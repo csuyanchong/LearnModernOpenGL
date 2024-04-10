@@ -16,7 +16,7 @@
 // Program src header
 #include "shaderutil/ShaderUtil.h"
 #include "camera/Camera.h"
-#include "mesh/BasicMesh.h"
+#include "mesh/Mesh.h"
 
 
 /* 屏幕宽度 */
@@ -174,12 +174,12 @@ void createVertexData() {
   glBindVertexArray(vao);
 
   // 加载模型文件
-  BasicMesh mesh;
-  bool res = mesh.loadMeshFromFile(pathModel);
-  if (!res) {
-    std::cout << "从路径" + pathModel + "加载模型失败！";
-    exit(EXIT_FAILURE);
-  }
+  //Mesh mesh;
+  //bool res = mesh.loadMeshFromFile(pathModel);
+  //if (!res) {
+  //  std::cout << "从路径" + pathModel + "加载模型失败！";
+  //  exit(EXIT_FAILURE);
+  //}
 
   // 指定顶点数据
   verticesPosition = {
