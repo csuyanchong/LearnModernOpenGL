@@ -2,10 +2,8 @@
 #define SRC_MESH_MESH_H_
 
 #include <vector>
-
-#include <gl3w/GL/gl3w.h>
 #include <glm/vec3.hpp>
-
+#include <gl3w/GL/gl3w.h>
 
 struct Vertex {
   glm::vec3 position;
@@ -13,12 +11,13 @@ struct Vertex {
 
 class Mesh {
 public:
-  Mesh(std::vector<Vertex> _verts, std::vector<GLuint> _indices):vertices(_verts), indices(_indices) {};
+  Mesh(std::vector<Vertex> _verts, std::vector<GLuint> _indices);
   ~Mesh();
   void preDraw();
   void draw();
 
-public:
+private:
+  void setUp();
   /* 顶点位置 */
   const std::vector<Vertex> vertices;
   /* 顶点索引 */

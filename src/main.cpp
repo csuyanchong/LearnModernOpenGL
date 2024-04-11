@@ -17,7 +17,7 @@
 #include "shaderutil/ShaderUtil.h"
 #include "camera/Camera.h"
 #include "mesh/Mesh.h"
-
+#include "model/Model.h"
 
 /* 屏幕宽度 */
 static const int SCREEN_WIDTH = 1024;
@@ -50,7 +50,7 @@ GLfloat FAR_CLIP_PLANE = 100.0f;
 
 /* 变换 */
 GLfloat rotation = 0;
-GLfloat forward = -2.0f;
+GLfloat forward = -5.0f;
 GLfloat scale = 1.0f;
 
 /* 主摄像机 */
@@ -61,33 +61,38 @@ GLfloat moveCamHorizenSpeed = 0.1f;
 
 /* 模型文件地址 */
 const std::string MODELS_DIR = "./data/models/objmodel/";
-std::string nameModel = "teapot.obj";
+std::string nameModel = "cube.obj";
 
 std::string pathModel = MODELS_DIR + nameModel;
 
+Model model;
+
 void preDraw() {
   glClearBufferfv(GL_COLOR, 0, CLEAR_COLOR);
+  glEnable(GL_DEPTH);
+  //glEnable(GL_STENCIL);
 
   // 使用图形管线
   glUseProgram(programPipeline);
-  glBindVertexArray(vao);
-  glEnableVertexAttribArray(0);
-  glEnableVertexAttribArray(1);
+  
+  model.preDraw();
 
-  glm::mat4 model = glm::mat4(1.0f);
+ /* glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-  model = glm::translate(model, glm::vec3(0, 0, forward));
+  modelMatrix = glm::translate(modelMatrix, glm::vec3(0, 0, forward));
 
-  model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 1.0f, 0));
+  modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0, 1.0f, 0));
 
-  model = glm::scale(model, glm::vec3(scale));
+  modelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
 
 
-  glm::mat4 view = camMain.getViewMatrix();
+  glm::mat4 viewMatrix = camMain.getViewMatrix();
 
-  glm::mat4 project = glm::perspective(FOV, (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
+  glm::mat4 projectMatrix = glm::perspective(FOV, (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);*/
 
-  glm::mat4 mvp = project * view * model;
+  /*glm::mat4 mvp = projectMatrix * viewMatrix * modelMatrix;*/
+
+  glm::mat4 mvp = glm::mat4(1.0f);
 
   // 查询并修改全局变量
   GLint location_uniform_projMat = glGetUniformLocation(programPipeline, "uMVP");
@@ -101,7 +106,7 @@ void preDraw() {
 }
 
 void draw() {
-  glDrawElements(GL_TRIANGLES, (GLsizei)verticesIndex.size(), GL_UNSIGNED_INT, NULL);
+  model.draw();
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -174,53 +179,11 @@ void createVertexData() {
   glBindVertexArray(vao);
 
   // 加载模型文件
-  //Mesh mesh;
-  //bool res = mesh.loadMeshFromFile(pathModel);
-  //if (!res) {
-  //  std::cout << "从路径" + pathModel + "加载模型失败！";
-  //  exit(EXIT_FAILURE);
-  //}
-
-  // 指定顶点数据
-  verticesPosition = {
-    -0.5f, 0.5f,
-    -0.5f, -0.5f,
-    0.5f, -0.5f,
-    0.5f, 0.5f
-  };
-
-  verticesColor = {
-    255, 0, 0, // 红色
-    0, 255, 0, // 绿色
-    0, 0, 255 // 蓝色
-  };
-
-  verticesIndex = {
-    0, 1, 2, 0, 2, 3
-  };
-
-  // 顶点位置缓冲
-  glGenBuffers((GLsizei)vbo.size(), vbo.data());
-  glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-  glBufferData(GL_ARRAY_BUFFER, verticesPosition.size() * sizeof(GLfloat), verticesPosition.data(), GL_STATIC_DRAW);
-
-  // 向vao解释attribute对应的缓存内容
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-  glDisableVertexAttribArray(0);
-
-  // 顶点颜色缓冲
-  glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-  glBufferData(GL_ARRAY_BUFFER, verticesColor.size() * sizeof(GLubyte), verticesColor.data(), GL_STATIC_DRAW);
-
-  glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
-  glDisableVertexAttribArray(1);
-
-  // 索引缓冲
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[2]);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, verticesIndex.size() * sizeof(GLuint), verticesIndex.data(), GL_STATIC_DRAW);
-
-  //glVertexAttribPointer(2, 3, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
-  //glDisableVertexAttribArray(2);
+  bool resLoadModel = model.loadFromFile(pathModel);
+  if (!resLoadModel) {
+    std::cout << "从路径" + pathModel + "加载模型失败！";
+    exit(EXIT_FAILURE);
+  }
 }
 
 void createGraphicPipeline() {

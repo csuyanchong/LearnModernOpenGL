@@ -3,44 +3,19 @@
 /* Standard libray */
 #include <iostream>
 
-
 /* Assimp */
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
 #include <glm/vec3.hpp>
+#include <gl3w/GL/gl3w.h>
 
 /* Src header*/
 #include "../mesh/Mesh.h"
 
-Model::Model() {
-}
 
-Model::~Model() {
-}
-
-bool Model::loadFromFile(const std::string& filePath) {
-  // 读取并加载模型文件
-  Assimp::Importer importer;
-  const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate);
-  if (nullptr == scene) {
-    std::cout << importer.GetErrorString() << std::endl;
-  }
-
-  // 处理成OpenGL节点
-  processNode(scene->mRootNode, scene, meshes);
-
-  // 创建OpenGL缓存
-  CreateAndPopulateBuffer();
-  return true;
-}
-
-void Model::preDraw() {
-}
-
-void Model::draw() {
-}
+#pragma region Helper Function
 
 namespace {
   Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
@@ -81,6 +56,45 @@ namespace {
     //TODO...
   }
 }
+
+#pragma endregion
+
+
+Model::Model() {
+}
+
+Model::~Model() {
+}
+
+bool Model::loadFromFile(const std::string& filePath) {
+  // 读取并加载模型文件
+  Assimp::Importer importer;
+  const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate);
+  if (nullptr == scene) {
+    std::cout << importer.GetErrorString() << std::endl;
+    return false;
+  }
+
+  // 处理成OpenGL节点
+  processNode(scene->mRootNode, scene, meshes);
+  return true;
+}
+
+void Model::preDraw() {
+  for (size_t i = 0; i < meshes.size(); i++) {
+    Mesh mesh = meshes[i];
+    mesh.preDraw();
+  }
+}
+
+void Model::draw() {
+  for (size_t i = 0; i < meshes.size(); i++) {
+    Mesh mesh = meshes[i];
+    mesh.draw();
+  }
+}
+
+
 
 
 
