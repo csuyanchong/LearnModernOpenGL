@@ -26,12 +26,15 @@ namespace {
     // Walk through each of the mesh's vertices
     for (GLuint i = 0; i < mesh->mNumVertices; i++) {
       Vertex vertex = {};
-      vertex.position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-      if (mesh->mNormals != nullptr) {
+      vertex.position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);     
+      vertices.push_back(vertex);
+    }
+
+    if (mesh->mNormals != nullptr) {
+      for (GLuint i = 0; i < mesh->mNumVertices; i++) {
+        Vertex vertex = vertices[i];
         vertex.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
       }
-     
-      vertices.push_back(vertex);
     }
 
     for (GLuint i = 0; i < mesh->mNumFaces; i++) {

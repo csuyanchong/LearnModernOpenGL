@@ -48,13 +48,14 @@ GLfloat FOV = 45.0f;
 GLfloat NEAR_CLIP_PLANE = 0.1f;
 GLfloat FAR_CLIP_PLANE = 100.0f;
 
-/* 变换 */
+/* 模型变换 */
 GLfloat rotation = 0;
 GLfloat forward = 0;
 GLfloat scale = 0.01f;
 
 /* 主摄像机 */
 Camera camMain;
+glm::vec3 camPos = glm::vec3(1, 2, 3);
 
 GLfloat moveCamVerticalSpeed = 0.1f;
 GLfloat moveCamHorizenSpeed = 0.1f;
@@ -66,6 +67,13 @@ std::string nameModel = "teapot.obj";
 std::string pathModel = MODELS_DIR + nameModel;
 
 Model model;
+
+/* 模型材质颜色 */
+glm::vec3 materialColor = glm::vec3(1.0f, 0, 0);
+
+/* 平行光Dirction light光照模型 */
+glm::vec3 lightDir = glm::vec3(-1, -3, -3);
+glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
 void preDraw() {
   glClearBufferfv(GL_COLOR, 0, CLEAR_COLOR);
@@ -86,7 +94,7 @@ void preDraw() {
 
   modelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
 
-  camMain.setEyePosition(glm::vec3(-3, 3, 3));
+  camMain.setEyePosition(camPos);
   glm::mat4 viewMatrix = camMain.getViewMatrix();
 
   glm::mat4 projectMatrix = glm::perspective(FOV, (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
