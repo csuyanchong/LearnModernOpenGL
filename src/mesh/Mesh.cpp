@@ -9,12 +9,17 @@ namespace {
   /* 顶点数组对象 */
   GLuint vao = 0;
   /* 顶点缓存对象 */
-  std::vector<GLuint> vbo(2);
+  std::vector<GLuint> vbo(3);
 
   void CreateAndPopulateBuffer(std::vector<Vertex> _vertices, std::vector<GLuint> _indices) {
     // 创建vao
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
+
+    // 偏移设置
+    GLsizei strideVertex = 6 * sizeof(GLfloat);
+    GLintptr vertex_position_offset = 0 * sizeof(GLfloat);
+    GLintptr vertex_normal_offset = 3 * sizeof(GLfloat);
 
     // 顶点位置缓冲
     glGenBuffers((GLsizei)vbo.size(), vbo.data());
@@ -22,11 +27,17 @@ namespace {
     glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(Vertex), _vertices.data(), GL_STATIC_DRAW);
 
     // 向vao解释attribute对应的缓存内容
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, strideVertex, (GLvoid*)vertex_position_offset);
+    glDisableVertexAttribArray(0);
+
+    // 顶点法线缓冲
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+    glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(Vertex), _vertices.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, strideVertex, (GLvoid*)vertex_normal_offset);
     glDisableVertexAttribArray(0);
 
     // 索引缓冲
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[2]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices.size() * sizeof(GLuint), _indices.data(), GL_STATIC_DRAW);
   }
 }

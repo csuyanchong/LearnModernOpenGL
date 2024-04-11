@@ -27,7 +27,10 @@ namespace {
     for (GLuint i = 0; i < mesh->mNumVertices; i++) {
       Vertex vertex = {};
       vertex.position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-
+      if (mesh->mNormals != nullptr) {
+        vertex.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+      }
+     
       vertices.push_back(vertex);
     }
 
