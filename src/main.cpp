@@ -50,8 +50,8 @@ GLfloat FAR_CLIP_PLANE = 100.0f;
 
 /* 变换 */
 GLfloat rotation = 0;
-GLfloat forward = -5.0f;
-GLfloat scale = 1.0f;
+GLfloat forward = 0;
+GLfloat scale = 0.01f;
 
 /* 主摄像机 */
 Camera camMain;
@@ -61,7 +61,7 @@ GLfloat moveCamHorizenSpeed = 0.1f;
 
 /* 模型文件地址 */
 const std::string MODELS_DIR = "./data/models/objmodel/";
-std::string nameModel = "cube.obj";
+std::string nameModel = "teapot.obj";
 
 std::string pathModel = MODELS_DIR + nameModel;
 
@@ -77,7 +77,8 @@ void preDraw() {
   
   model.preDraw();
 
- /* glm::mat4 modelMatrix = glm::mat4(1.0f);
+  // 设置MVP矩阵
+  glm::mat4 modelMatrix = glm::mat4(1.0f);
 
   modelMatrix = glm::translate(modelMatrix, glm::vec3(0, 0, forward));
 
@@ -85,14 +86,12 @@ void preDraw() {
 
   modelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
 
-
+  camMain.setEyePosition(glm::vec3(-3, 3, 3));
   glm::mat4 viewMatrix = camMain.getViewMatrix();
 
-  glm::mat4 projectMatrix = glm::perspective(FOV, (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);*/
+  glm::mat4 projectMatrix = glm::perspective(FOV, (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
 
-  /*glm::mat4 mvp = projectMatrix * viewMatrix * modelMatrix;*/
-
-  glm::mat4 mvp = glm::mat4(1.0f);
+  glm::mat4 mvp = projectMatrix * viewMatrix * modelMatrix;
 
   // 查询并修改全局变量
   GLint location_uniform_projMat = glGetUniformLocation(programPipeline, "uMVP");
@@ -174,10 +173,6 @@ void initSetup() {
 }
 
 void createVertexData() {
-  // 创建vao
-  glGenVertexArrays(1, &vao);
-  glBindVertexArray(vao);
-
   // 加载模型文件
   bool resLoadModel = model.loadFromFile(pathModel);
   if (!resLoadModel) {

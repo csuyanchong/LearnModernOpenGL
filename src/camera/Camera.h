@@ -7,6 +7,7 @@ class Camera {
 public:
   Camera();
   glm::mat4 getViewMatrix() const;
+  void setEyePosition(glm::vec3);
 
   void moveLeft(float speed);
   void moveRight(float speed);

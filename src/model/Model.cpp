@@ -51,10 +51,6 @@ namespace {
       processNode(node->mChildren[i], scene, meshes);
     }
   }
-
-  void CreateAndPopulateBuffer() {
-    //TODO...
-  }
 }
 
 #pragma endregion

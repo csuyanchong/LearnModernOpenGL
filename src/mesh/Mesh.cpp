@@ -12,6 +12,9 @@ namespace {
   std::vector<GLuint> vbo(2);
 
   void CreateAndPopulateBuffer(std::vector<Vertex> _vertices, std::vector<GLuint> _indices) {
+    // 创建vao
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
 
     // 顶点位置缓冲
     glGenBuffers((GLsizei)vbo.size(), vbo.data());
@@ -19,7 +22,7 @@ namespace {
     glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(Vertex), _vertices.data(), GL_STATIC_DRAW);
 
     // 向vao解释attribute对应的缓存内容
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, 0, 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glDisableVertexAttribArray(0);
 
     // 索引缓冲

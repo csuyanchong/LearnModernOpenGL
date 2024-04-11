@@ -11,6 +11,10 @@ glm::mat4 Camera::getViewMatrix() const {
   return glm::lookAt(eyePos, lookDir, up);
 }
 
+void Camera::setEyePosition(glm::vec3 _pos) {
+  eyePos = _pos;
+}
+
 void Camera::moveLeft(float speed) {
   eyePos.x -= speed;
 }
