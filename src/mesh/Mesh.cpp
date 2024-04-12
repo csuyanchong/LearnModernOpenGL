@@ -53,8 +53,7 @@ void Mesh::preDraw() {
   // °ó¶¨¶¥µã»º´æ
   glBindVertexArray(vao);
   glEnableVertexAttribArray(0);
-  //glEnableVertexAttribArray(1);
-
+  glEnableVertexAttribArray(1);
 }
 
 void Mesh::draw() {

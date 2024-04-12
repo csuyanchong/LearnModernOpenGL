@@ -32,8 +32,9 @@ namespace {
 
     if (mesh->mNormals != nullptr) {
       for (GLuint i = 0; i < mesh->mNumVertices; i++) {
-        Vertex vertex = vertices[i];
-        vertex.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+        Vertex& vertex = vertices[i];
+        aiVector3D normal = mesh->mNormals[i];
+        vertex.normal = glm::vec3(normal.x, normal.y, normal.z);
       }
     }
 

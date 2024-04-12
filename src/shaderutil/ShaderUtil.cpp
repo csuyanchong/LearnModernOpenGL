@@ -28,25 +28,30 @@ GLuint loadShader(std::vector<ShaderInfo>& shaders) {
 
   // 编译链接shader
   for (size_t i = 0; i < shaders.size(); i++) {
-    ShaderInfo shader = shaders[i];
-    GLuint vertShader = glCreateShader(shader.type);
-    shader.shaderObj = &vertShader;
-    std::string sourceCode = readShaderFromFile(shader.filePath);
+    ShaderInfo shaderInfo = shaders[i];
+    GLuint shader = glCreateShader(shaderInfo.type);
+    shaderInfo.shaderObj = &shader;
+    std::string sourceCode = readShaderFromFile(shaderInfo.filePath);
     const char* stringSource = sourceCode.c_str();
     // shader 填充源码
-    glShaderSource(vertShader, 1, &stringSource, NULL);
+    glShaderSource(shader, 1, &stringSource, NULL);
     // 编译
-    glCompileShader(vertShader);
+    glCompileShader(shader);
     // 查看编译结果
     GLint resShaderCompile = GL_TRUE;
-    glGetShaderiv(vertShader, GL_COMPILE_STATUS, &resShaderCompile);
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &resShaderCompile);
     if (resShaderCompile == GL_FALSE) {
       // 处理编译失败
-      std::cout << shader.type << "shader compile failure!" << std::endl;
+      std::cout << "位于" + shaderInfo.filePath + "处的shader编译失败!" << std::endl;
+      GLsizei log_length = 0;
+      GLchar message[1024];
+      glGetShaderInfoLog(shader, 1024, &log_length, message);
+      std::cout << message << std::endl;
+      exit(EXIT_FAILURE);
       // TODO...写入日志
     }
     // 将shader和program绑定
-    glAttachShader(program, vertShader);
+    glAttachShader(program, shader);
   }
 
   glLinkProgram(program);
@@ -56,6 +61,7 @@ GLuint loadShader(std::vector<ShaderInfo>& shaders) {
   if (resProgramLink == GL_FALSE) {
     // 处理链接失败
     std::cout << "shader program link failure!" << std::endl;
+    exit(EXIT_FAILURE);
   }
 
   return program;

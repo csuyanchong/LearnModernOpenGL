@@ -8,6 +8,7 @@
 #include <gl3w/GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <glm/vec3.hpp>
+#include <glm/matrix.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -18,6 +19,7 @@
 #include "camera/Camera.h"
 #include "mesh/Mesh.h"
 #include "model/Model.h"
+#include "shaderutil/ShaderProgramUtil.h"
 
 /* 屏幕宽度 */
 static const int SCREEN_WIDTH = 1024;
@@ -25,6 +27,8 @@ static const int SCREEN_WIDTH = 1024;
 static const int SCREEN_HEIGHT = 768;
 /* 屏幕清除颜色 */
 static const GLfloat CLEAR_COLOR[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+/* 屏幕深度缓存清除值 */
+static const GLfloat CLEAR_DEPTH = 1.0f;
 /* 窗口 */
 GLFWwindow* window;
 
@@ -72,20 +76,40 @@ Model model;
 glm::vec3 materialColor = glm::vec3(1.0f, 0, 0);
 
 /* 平行光Dirction light光照模型 */
-glm::vec3 lightDir = glm::vec3(-1, -3, -3);
-glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+struct DirectionLight {
+  glm::vec3 lightDir;
+  glm::vec3 lightColor;
+};
 
-void preDraw() {
-  glClearBufferfv(GL_COLOR, 0, CLEAR_COLOR);
-  glEnable(GL_DEPTH);
-  //glEnable(GL_STENCIL);
+DirectionLight light = { 
+  glm::vec3(1, 3, 3), 
+  glm::vec3(1.0f, 1.0f, 1.0f) 
+};
 
-  // 使用图形管线
-  glUseProgram(programPipeline);
-  
-  model.preDraw();
+/* 材质模型 */
+struct BlinnMaterial {
+  glm::vec3 ka;
+  glm::vec3 kd;
+  glm::vec3 ks;
+  GLfloat alpha;
+};
 
-  // 设置MVP矩阵
+BlinnMaterial material = {
+  glm::vec3(0.3451f, 0.6941f, 0.1059f),
+  glm::vec3(0.3451f, 0.6941f, 0.1059f),
+  glm::vec3(0.3500f, 0.3500f, 0.3500f),
+  32.0f
+};
+
+/* 计算参数 */
+glm::mat4 modelView;
+glm::mat4 modelViewProjection;
+glm::mat3 modelViewForNormal;
+
+glm::vec3 dirLight;
+
+void preCompute() {
+  // 计算mv, mvp, mvNormal
   glm::mat4 modelMatrix = glm::mat4(1.0f);
 
   modelMatrix = glm::translate(modelMatrix, glm::vec3(0, 0, forward));
@@ -99,15 +123,81 @@ void preDraw() {
 
   glm::mat4 projectMatrix = glm::perspective(FOV, (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
 
-  glm::mat4 mvp = projectMatrix * viewMatrix * modelMatrix;
+  modelView = viewMatrix * modelMatrix;
+  modelViewProjection = projectMatrix * viewMatrix * modelMatrix;
+ 
+  glm::mat4x4 modelViewForNormal44 = glm::transpose(glm::inverse(modelView));
+  modelViewForNormal = modelViewForNormal44;
+
+  // 计算dirLight, 单位向量
+  glm::vec4 dirLightCompute = glm::normalize(modelView * (glm::vec4(light.lightDir, 1.0f))) ;
+  dirLight = dirLightCompute;
+}
+
+void clearSetting() {
+  // 清除颜色和深度缓冲
+  glClearBufferfv(GL_COLOR, 0, CLEAR_COLOR);
+  glClearBufferfv(GL_DEPTH, 0, &CLEAR_DEPTH);
+
+  // 开启背面剔除
+  glEnable(GL_CULL_FACE);
+  glFrontFace(GL_CCW);
+  glCullFace(GL_BACK);
+
+  // 隐藏面消除
+  glEnable(GL_DEPTH_TEST);
+}
+
+void preDraw() {
+  clearSetting();
+  // 使用图形管线
+  glUseProgram(programPipeline);
+  
+  model.preDraw();
+
+  // 预计算着色参数
+  preCompute();
 
   // 查询并修改全局变量
-  GLint location_uniform_projMat = glGetUniformLocation(programPipeline, "uMVP");
-  if (location_uniform_projMat != -1) {
-    glUniformMatrix4fv(location_uniform_projMat, 1, GL_FALSE, &mvp[0][0]);
+  ShaderProgramUtil programUtil(programPipeline);
+
+  bool resModifyMVP = programUtil.glModifyUniformMat44("uMVP", modelViewProjection);
+  if (!resModifyMVP) {
+    exit(EXIT_FAILURE);
   }
-  else {
-    std::cout << "查询全局变量projMat没找到，可能拼写错误！" << std::endl;
+
+  bool resModifyMV = programUtil.glModifyUniformMat44("uMV", modelView);
+  if (!resModifyMV) {
+    exit(EXIT_FAILURE);
+  }
+
+  bool resModifyMVNormal = programUtil.glModifyUniformMat33("uMVNormal", modelViewForNormal);
+  if (!resModifyMVNormal) {
+    exit(EXIT_FAILURE);
+  }
+
+  bool resModifyKa = programUtil.glModifyUniformVec3("uKa", material.ka);
+  if (!resModifyKa) {
+    exit(EXIT_FAILURE);
+  }
+
+  resModifyKa = programUtil.glModifyUniformVec3("uKd", material.kd);
+  if (!resModifyKa) {
+    exit(EXIT_FAILURE);
+  }
+
+  resModifyKa = programUtil.glModifyUniformVec3("uKs", material.ks);
+  if (!resModifyKa) {
+    exit(EXIT_FAILURE);
+  }
+
+  resModifyKa = programUtil.glModifyUniformFloat("uAlpha", material.alpha);
+  if (!resModifyKa) {
+    exit(EXIT_FAILURE);
+  }
+
+  bool resModifyLight = programUtil.glModifyUniformVec3("uDirLight", light.lightDir);
+  if (!resModifyLight) {
     exit(EXIT_FAILURE);
   }
 }
