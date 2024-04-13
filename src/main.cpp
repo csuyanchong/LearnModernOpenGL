@@ -58,8 +58,11 @@ GLfloat forward = 0;
 GLfloat scale = 0.01f;
 
 /* 主摄像机 */
-Camera camMain;
-glm::vec3 camPos = glm::vec3(1, 2, 3);
+Camera camMain(
+  glm::vec3(1, 2, 3),
+  glm::vec3(0, 0, -1),
+  glm::vec3(0, 1.0f, 0)
+  );
 
 GLfloat moveCamVerticalSpeed = 0.1f;
 GLfloat moveCamHorizenSpeed = 0.1f;
@@ -77,12 +80,12 @@ glm::vec3 materialColor = glm::vec3(1.0f, 0, 0);
 
 /* 平行光Dirction light光照模型 */
 struct DirectionLight {
-  glm::vec3 lightDir;
+  glm::vec3 lightPosition;
   glm::vec3 lightColor;
 };
 
 DirectionLight light = { 
-  glm::vec3(1, 3, 3), 
+  glm::vec3(1.0f, 1.0f, 1.0f), 
   glm::vec3(1.0f, 1.0f, 1.0f) 
 };
 
@@ -94,12 +97,20 @@ struct BlinnMaterial {
   GLfloat alpha;
 };
 
+//BlinnMaterial material = {
+//  glm::vec3(0.3451f, 0.6941f, 0.1059f),
+//  glm::vec3(0.3451f, 0.6941f, 0.1059f),
+//  glm::vec3(1.0f, 1.0f, 1.0f),
+//  64.0f
+//};
+
 BlinnMaterial material = {
-  glm::vec3(0.3451f, 0.6941f, 0.1059f),
-  glm::vec3(0.3451f, 0.6941f, 0.1059f),
-  glm::vec3(0.3500f, 0.3500f, 0.3500f),
-  32.0f
+  glm::vec3(1.0f, 0, 0),
+  glm::vec3(1.0f, 0, 0),
+  glm::vec3(1.0f, 1.0f, 1.0f),
+  64.0f
 };
+
 
 /* 计算参数 */
 glm::mat4 modelView;
@@ -107,6 +118,10 @@ glm::mat4 modelViewProjection;
 glm::mat3 modelViewForNormal;
 
 glm::vec3 dirLight;
+
+/* 灯光旋转参数 */
+GLfloat lightRotationSpeed = 0;
+
 
 void preCompute() {
   // 计算mv, mvp, mvNormal
@@ -118,7 +133,6 @@ void preCompute() {
 
   modelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
 
-  camMain.setEyePosition(camPos);
   glm::mat4 viewMatrix = camMain.getViewMatrix();
 
   glm::mat4 projectMatrix = glm::perspective(FOV, (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
@@ -126,12 +140,16 @@ void preCompute() {
   modelView = viewMatrix * modelMatrix;
   modelViewProjection = projectMatrix * viewMatrix * modelMatrix;
  
+  // 法线在view空间的变换
   glm::mat4x4 modelViewForNormal44 = glm::transpose(glm::inverse(modelView));
   modelViewForNormal = modelViewForNormal44;
 
-  // 计算dirLight, 单位向量
-  glm::vec4 dirLightCompute = glm::normalize(modelView * (glm::vec4(light.lightDir, 1.0f))) ;
-  dirLight = dirLightCompute;
+  // 计算dirLight。光线方向变换到view空间，不考虑平移，所以3*3矩阵就够了。
+  glm::mat3 modelLight = glm::rotate(glm::mat4(1.0f), glm::radians(lightRotationSpeed), glm::vec3(1.0f, 0, -1.0f));
+  glm::mat3 viewMatrix3 = viewMatrix;
+
+  glm::vec3 dirLightCompute = viewMatrix3 * modelLight * light.lightPosition;
+  dirLight = glm::normalize(dirLightCompute);
 }
 
 void clearSetting() {
@@ -140,9 +158,9 @@ void clearSetting() {
   glClearBufferfv(GL_DEPTH, 0, &CLEAR_DEPTH);
 
   // 开启背面剔除
-  glEnable(GL_CULL_FACE);
-  glFrontFace(GL_CCW);
-  glCullFace(GL_BACK);
+  //glEnable(GL_CULL_FACE);
+  //glFrontFace(GL_CCW);
+  //glCullFace(GL_BACK);
 
   // 隐藏面消除
   glEnable(GL_DEPTH_TEST);
@@ -161,44 +179,44 @@ void preDraw() {
   // 查询并修改全局变量
   ShaderProgramUtil programUtil(programPipeline);
 
-  bool resModifyMVP = programUtil.glModifyUniformMat44("uMVP", modelViewProjection);
+  bool resModifyMVP = programUtil.glModifyUniformMat44("u_mvp", modelViewProjection);
   if (!resModifyMVP) {
-    exit(EXIT_FAILURE);
+    //exit(EXIT_FAILURE);
   }
 
-  bool resModifyMV = programUtil.glModifyUniformMat44("uMV", modelView);
+  bool resModifyMV = programUtil.glModifyUniformMat44("u_mv", modelView);
   if (!resModifyMV) {
-    exit(EXIT_FAILURE);
+    //exit(EXIT_FAILURE);
   }
 
-  bool resModifyMVNormal = programUtil.glModifyUniformMat33("uMVNormal", modelViewForNormal);
+  bool resModifyMVNormal = programUtil.glModifyUniformMat33("u_normal", modelViewForNormal);
   if (!resModifyMVNormal) {
-    exit(EXIT_FAILURE);
+    //exit(EXIT_FAILURE);
   }
 
-  bool resModifyKa = programUtil.glModifyUniformVec3("uKa", material.ka);
+  bool resModifyKa = programUtil.glModifyUniformVec3("u_ka", material.ka);
   if (!resModifyKa) {
-    exit(EXIT_FAILURE);
+    //exit(EXIT_FAILURE);
   }
 
-  resModifyKa = programUtil.glModifyUniformVec3("uKd", material.kd);
+  resModifyKa = programUtil.glModifyUniformVec3("u_kd", material.kd);
   if (!resModifyKa) {
-    exit(EXIT_FAILURE);
+    //exit(EXIT_FAILURE);
   }
 
-  resModifyKa = programUtil.glModifyUniformVec3("uKs", material.ks);
+  resModifyKa = programUtil.glModifyUniformVec3("u_ks", material.ks);
   if (!resModifyKa) {
-    exit(EXIT_FAILURE);
+    //exit(EXIT_FAILURE);
   }
 
-  resModifyKa = programUtil.glModifyUniformFloat("uAlpha", material.alpha);
+  resModifyKa = programUtil.glModifyUniformFloat("u_alpha", material.alpha);
   if (!resModifyKa) {
-    exit(EXIT_FAILURE);
+    //exit(EXIT_FAILURE);
   }
 
-  bool resModifyLight = programUtil.glModifyUniformVec3("uDirLight", light.lightDir);
+  bool resModifyLight = programUtil.glModifyUniformVec3("u_dirLight", dirLight);
   if (!resModifyLight) {
-    exit(EXIT_FAILURE);
+    //exit(EXIT_FAILURE);
   }
 }
 
@@ -237,16 +255,23 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     forward -= 0.1f;
   }
   if (key == GLFW_KEY_T) {
-    scale += 0.1f;
-    scale = fmin(scale, 2.0f);
+    scale += 0.001f;
+    scale = fmin(scale, 0.02f);
   }
   if (key == GLFW_KEY_G) {
-    scale -= 0.1f;
-    scale = fmaxf(scale, 0.2f);
+    scale -= 0.001f;
+    scale = fmaxf(scale, 0.002f);
   }
   if (key == GLFW_KEY_N)
   {
-    scale = 1;
+    scale = 0.01f;
+  }
+
+  if (key == GLFW_KEY_Z) {
+    lightRotationSpeed -= 1.0f;
+  }
+  if (key == GLFW_KEY_C) {
+    lightRotationSpeed += 1.0f;
   }
 }
 

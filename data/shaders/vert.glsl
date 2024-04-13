@@ -3,17 +3,19 @@
 layout (location = 0) in vec3 vPosition;
 layout (location = 1) in vec3 vNormal;
 
-uniform mat4 uMV;
-uniform mat4 uMVP;
-uniform mat3 uMVNormal;
+uniform mat4 u_mv;
+uniform mat4 u_mvp;
+uniform mat3 u_normal;
 
-out vec3 vOutPosView;
-out vec3 vOutNormal;
+out vec3 v_out_posView;
+out vec3 v_out_normal;
 
 void main() {
-  vec4 vOutPosViewCompute = uMV * vec4(vPosition, 1.0f);
-  vOutPosView = normalize(vec3(vOutPosViewCompute));
-
-  vOutNormal = normalize(uMVNormal * vNormal);
-  gl_Position = uMVP * vec4(vPosition, 1.0f);
+  // 顶点变换到View空间
+  vec4 posView = u_mv * vec4(vPosition, 1.0f);
+  v_out_posView = normalize(vec3(posView));
+  // 法线变换到View空间
+  v_out_normal = normalize(u_normal * vNormal);
+  // 顶点投影位置
+  gl_Position = u_mvp * vec4(vPosition, 1.0f);
 }
