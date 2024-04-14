@@ -42,6 +42,12 @@
     <ClCompile Include="src\thirdparty\lodepng\lodepng.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\texture\Texture.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\texture\GLTextureManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\GLFW\glfw3.h">
@@ -77,6 +83,12 @@
     <ClInclude Include="src\shaderutil\ShaderProgramUtil.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\texture\Texture.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\texture\GLTextureManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.md" />
@@ -90,5 +102,7 @@
     <None Include="post_build_event.bat">
       <Filter>源文件</Filter>
     </None>
+    <None Include="data\shaders\texture_map.vert" />
+    <None Include="data\shaders\texture_map.frag" />
   </ItemGroup>
 </Project>

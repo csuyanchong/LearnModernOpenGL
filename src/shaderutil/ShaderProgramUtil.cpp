@@ -46,3 +46,14 @@ bool ShaderProgramUtil::glModifyUniformFloat(std::string id, GLfloat value) {
   std::cout << "查询全局变量" + id + "没找到，可能拼写错误！" << std::endl;
   return false;
 }
+
+bool ShaderProgramUtil::glModifyUniformInt1(std::string id, GLint value) {
+  // 查询并修改全局变量
+  GLint location = glGetUniformLocation(programPipeline, id.c_str());
+  if (location != -1) {
+    glUniform1i(location, value);
+    return true;
+  }
+  std::cout << "查询全局变量" + id + "没找到，可能拼写错误！" << std::endl;
+  return false;
+}

@@ -2,12 +2,15 @@
 #define SRC_MESH_MESH_H_
 
 #include <vector>
+#include <string>
 #include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 #include <gl3w/GL/gl3w.h>
 
 struct Vertex {
   glm::vec3 position;
   glm::vec3 normal;
+  glm::vec2 texcoord;
 };
 
 class Mesh {
@@ -20,9 +23,9 @@ public:
 private:
   void setUp();
   /* 顶点位置 */
-  const std::vector<Vertex> vertices;
+  std::vector<Vertex> vertices;
   /* 顶点索引 */
-  const std::vector<GLuint> indices;
+  std::vector<GLuint> indices;
 };
 
 #endif // !SRC_MESH_MESH_H_

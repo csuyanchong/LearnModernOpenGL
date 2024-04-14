@@ -79,19 +79,13 @@ Model model;
 std::string nameDiffuseTexture = "brick.png";
 std::string pathDiffuseTexture = MODELS_DIR + nameDiffuseTexture;
 
-struct Texture {
-  std::string path;
-  unsigned int width;
-  unsigned int height;
-  std::vector<unsigned char> data;
-};
-
-Texture diffuseTexture = {
-  pathDiffuseTexture,
-  0,
-  0,
-  {}
-};
+//
+//Texture diffuseTexture = {
+//  pathDiffuseTexture,
+//  0,
+//  0,
+//  {}
+//};
 
 
 /* 模型材质颜色 */
@@ -141,19 +135,6 @@ glm::vec3 dirLight;
 /* 灯光旋转参数 */
 GLfloat lightRotationSpeed = 0;
 
-/// <summary>
-/// 加载资源。
-/// </summary>
-void loadRes() {
-  // Load file and decode image.
-  unsigned error = lodepng::decode(diffuseTexture.data, diffuseTexture.width, diffuseTexture.height, diffuseTexture.path);
-
-  // If there's an error, display it.
-  if (error != 0) {
-    std::cout << "error " << error << ": " << lodepng_error_text(error) << std::endl;
-    exit(EXIT_FAILURE);
-  }
-}
 
 void preCompute() {
   // 计算mv, mvp, mvNormal
@@ -204,53 +185,67 @@ void preDraw() {
   glUseProgram(programPipeline);
   
   model.preDraw();
-
+ 
   // 预计算着色参数
   preCompute();
 
   // 查询并修改全局变量
   ShaderProgramUtil programUtil(programPipeline);
-  GLint textureCount = 0;
-  glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &textureCount);
-  bool resModifyMVP = programUtil.glModifyUniformMat44("u_mvp", modelViewProjection);
+
+  bool resModifyMVP = programUtil.glModifyUniformMat44("v_u_mvp", modelViewProjection);
   if (!resModifyMVP) {
     //exit(EXIT_FAILURE);
   }
 
-  bool resModifyMV = programUtil.glModifyUniformMat44("u_mv", modelView);
-  if (!resModifyMV) {
+  bool resModifySample2d = programUtil.glModifyUniformInt1("f_u_sample2d", 0);
+  if (!resModifySample2d) {
     //exit(EXIT_FAILURE);
   }
 
-  bool resModifyMVNormal = programUtil.glModifyUniformMat33("u_normal", modelViewForNormal);
-  if (!resModifyMVNormal) {
-    //exit(EXIT_FAILURE);
-  }
+  //bool resModifyMVP = programUtil.glModifyUniformMat44("u_mvp", modelViewProjection);
+  //if (!resModifyMVP) {
+  //  //exit(EXIT_FAILURE);
+  //}
 
-  bool resModifyKa = programUtil.glModifyUniformVec3("u_ka", material.ka);
-  if (!resModifyKa) {
-    //exit(EXIT_FAILURE);
-  }
+  //bool resModifyMV = programUtil.glModifyUniformMat44("u_mv", modelView);
+  //if (!resModifyMV) {
+  //  //exit(EXIT_FAILURE);
+  //}
 
-  resModifyKa = programUtil.glModifyUniformVec3("u_kd", material.kd);
-  if (!resModifyKa) {
-    //exit(EXIT_FAILURE);
-  }
+  //bool resModifyMVNormal = programUtil.glModifyUniformMat33("u_normal", modelViewForNormal);
+  //if (!resModifyMVNormal) {
+  //  //exit(EXIT_FAILURE);
+  //}
 
-  resModifyKa = programUtil.glModifyUniformVec3("u_ks", material.ks);
-  if (!resModifyKa) {
-    //exit(EXIT_FAILURE);
-  }
+  //bool resModifyKa = programUtil.glModifyUniformVec3("u_ka", material.ka);
+  //if (!resModifyKa) {
+  //  //exit(EXIT_FAILURE);
+  //}
 
-  resModifyKa = programUtil.glModifyUniformFloat("u_alpha", material.alpha);
-  if (!resModifyKa) {
-    //exit(EXIT_FAILURE);
-  }
+  //resModifyKa = programUtil.glModifyUniformVec3("u_kd", material.kd);
+  //if (!resModifyKa) {
+  //  //exit(EXIT_FAILURE);
+  //}
 
-  bool resModifyLight = programUtil.glModifyUniformVec3("u_dirLight", dirLight);
-  if (!resModifyLight) {
-    //exit(EXIT_FAILURE);
-  }
+  //resModifyKa = programUtil.glModifyUniformVec3("u_ks", material.ks);
+  //if (!resModifyKa) {
+  //  //exit(EXIT_FAILURE);
+  //}
+
+  //resModifyKa = programUtil.glModifyUniformFloat("u_alpha", material.alpha);
+  //if (!resModifyKa) {
+  //  //exit(EXIT_FAILURE);
+  //}
+
+  //bool resModifyLight = programUtil.glModifyUniformVec3("u_dirLight", dirLight);
+  //if (!resModifyLight) {
+  //  //exit(EXIT_FAILURE);
+  //}
+
+  //bool resModifySample2d = programUtil.glModifyUniformInt1("u_texture_sample_2d", 0);
+  //if (!resModifyLight) {
+  //  //exit(EXIT_FAILURE);
+  //}
 }
 
 void draw() {
@@ -326,8 +321,6 @@ void initSetup() {
   // 键盘事件回调
   glfwSetKeyCallback(window, key_callback);
   glfwSetFramebufferSizeCallback(window, frame_buffer_size_callback);
-  // 加载资源
-  loadRes();
 }
 
 void createVertexData() {
@@ -342,11 +335,11 @@ void createVertexData() {
 void createGraphicPipeline() {
   std::vector<ShaderInfo> shaders;
   ShaderInfo vertInfo = {
-    GL_VERTEX_SHADER, "./data/shaders/vert.glsl"
+    GL_VERTEX_SHADER, "./data/shaders/texture_map.vert"
   };
 
   ShaderInfo fragInfo = {
-    GL_FRAGMENT_SHADER, "./data/shaders/frag.glsl"
+    GL_FRAGMENT_SHADER, "./data/shaders/texture_map.frag"
   };
 
   shaders.push_back(vertInfo);

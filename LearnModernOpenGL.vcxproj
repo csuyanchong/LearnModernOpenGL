@@ -228,8 +228,10 @@
     <ClCompile Include="src\mesh\Mesh.cpp" />
     <ClCompile Include="src\shaderutil\ShaderUtil.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\texture\GLTextureManager.cpp" />
     <ClCompile Include="src\thirdparty\gl3w\gl3w.c" />
     <ClCompile Include="src\thirdparty\lodepng\lodepng.cpp" />
+    <ClCompile Include="src\texture\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\shaderutil\ShaderProgramUtil.h" />
@@ -243,12 +245,16 @@
     <ClInclude Include="include\GLFW\glfw3native.h" />
     <ClInclude Include="src\mesh\Mesh.h" />
     <ClInclude Include="src\shaderutil\ShaderUtil.h" />
+    <ClInclude Include="src\texture\GLTextureManager.h" />
+    <ClInclude Include="src\texture\Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include="bin\data\shaders\frag.glsl" />
     <None Include="bin\data\shaders\vert.glsl" />
     <None Include="data\shaders\frag.glsl" />
+    <None Include="data\shaders\texture_map.frag" />
+    <None Include="data\shaders\texture_map.vert" />
     <None Include="data\shaders\vert.glsl" />
     <None Include="Readme.md" />
     <None Include="shaders\frag.glsl" />

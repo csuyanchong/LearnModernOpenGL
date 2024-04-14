@@ -15,6 +15,7 @@ public:
   bool glModifyUniformMat33(std::string, glm::mat3);
   bool glModifyUniformVec3(std::string, glm::vec3);
   bool glModifyUniformFloat(std::string, GLfloat);
+  bool glModifyUniformInt1(std::string, GLint);
 
 private:
   GLuint programPipeline;
