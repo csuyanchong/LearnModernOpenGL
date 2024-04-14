@@ -1,12 +1,12 @@
-# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
-# 创建的文件:11.04.2024 14:42:36
+# Blender 4.0.2 MTL File: 'None'
+# www.blender.org
 
-newmtl wire_088177027
-	Ns 32
-	d 1
-	Tr 0
-	Tf 1 1 1
-	illum 2
-	Ka 0.3451 0.6941 0.1059
-	Kd 0.3451 0.6941 0.1059
-	Ks 0.3500 0.3500 0.3500
+newmtl default.001
+Ns 19.999990
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd brick.png
+map_Ks brick-specular.png

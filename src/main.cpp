@@ -13,6 +13,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/ext/scalar_constants.hpp>
+#include <lodepng/lodepng.h>
 
 // Program src header
 #include "shaderutil/ShaderUtil.h"
@@ -55,7 +56,7 @@ GLfloat FAR_CLIP_PLANE = 100.0f;
 /* 模型变换 */
 GLfloat rotation = 0;
 GLfloat forward = 0;
-GLfloat scale = 0.01f;
+GLfloat scale = 0.1f;
 
 /* 主摄像机 */
 Camera camMain(
@@ -70,10 +71,28 @@ GLfloat moveCamHorizenSpeed = 0.1f;
 /* 模型文件地址 */
 const std::string MODELS_DIR = "./data/models/objmodel/";
 std::string nameModel = "teapot.obj";
-
 std::string pathModel = MODELS_DIR + nameModel;
 
 Model model;
+
+/* 模型贴图 */
+std::string nameDiffuseTexture = "brick.png";
+std::string pathDiffuseTexture = MODELS_DIR + nameDiffuseTexture;
+
+struct Texture {
+  std::string path;
+  unsigned int width;
+  unsigned int height;
+  std::vector<unsigned char> data;
+};
+
+Texture diffuseTexture = {
+  pathDiffuseTexture,
+  0,
+  0,
+  {}
+};
+
 
 /* 模型材质颜色 */
 glm::vec3 materialColor = glm::vec3(1.0f, 0, 0);
@@ -122,6 +141,19 @@ glm::vec3 dirLight;
 /* 灯光旋转参数 */
 GLfloat lightRotationSpeed = 0;
 
+/// <summary>
+/// 加载资源。
+/// </summary>
+void loadRes() {
+  // Load file and decode image.
+  unsigned error = lodepng::decode(diffuseTexture.data, diffuseTexture.width, diffuseTexture.height, diffuseTexture.path);
+
+  // If there's an error, display it.
+  if (error != 0) {
+    std::cout << "error " << error << ": " << lodepng_error_text(error) << std::endl;
+    exit(EXIT_FAILURE);
+  }
+}
 
 void preCompute() {
   // 计算mv, mvp, mvNormal
@@ -178,7 +210,8 @@ void preDraw() {
 
   // 查询并修改全局变量
   ShaderProgramUtil programUtil(programPipeline);
-
+  GLint textureCount = 0;
+  glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &textureCount);
   bool resModifyMVP = programUtil.glModifyUniformMat44("u_mvp", modelViewProjection);
   if (!resModifyMVP) {
     //exit(EXIT_FAILURE);
@@ -293,6 +326,8 @@ void initSetup() {
   // 键盘事件回调
   glfwSetKeyCallback(window, key_callback);
   glfwSetFramebufferSizeCallback(window, frame_buffer_size_callback);
+  // 加载资源
+  loadRes();
 }
 
 void createVertexData() {

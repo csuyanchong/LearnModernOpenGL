@@ -18,9 +18,6 @@
     <ClCompile Include="src\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\gl3w\gl3w.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\shaderutil\ShaderUtil.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -37,6 +34,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\shaderutil\ShaderProgramUtil.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\thirdparty\gl3w\gl3w.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\thirdparty\lodepng\lodepng.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
