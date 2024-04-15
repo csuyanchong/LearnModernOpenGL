@@ -79,9 +79,13 @@ namespace {
     if (mesh->mMaterialIndex >= 0) {
       aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
+      // 处理不同类型的纹理，比如漫反射、高光、法线贴图等。
       std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene);
-      // TODO...处理其它类型的纹理，比如高光、法线贴图等。
+
+      std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", scene);
+
       _textures.insert(_textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+      _textures.insert(_textures.end(), specularMaps.begin(), specularMaps.end());
     }
 
     return Mesh(vertices, indices);

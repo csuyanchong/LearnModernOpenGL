@@ -18,7 +18,6 @@ float intensityDiffuse = 0.55f;
 float intensitySpecular = 0.8f;
 float intensityAmbient =  0.25f;
 
-uniform sampler2D u_texture_sample_2d;
 in vec2 v_out_texture_coord;
 
 vec3 computeDiffuse(vec3 _kd, float _cosTheta, float _intensity) {
@@ -61,5 +60,4 @@ void main() {
   vec3 colorFinal = colorDiffuse + colorSpecular + colorAmbient;
 
   color = vec4(colorFinal, 1.0f);
-  color = texture(u_texture_sample_2d, v_out_texture_coord);
 }

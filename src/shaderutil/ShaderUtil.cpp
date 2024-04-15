@@ -61,6 +61,10 @@ GLuint loadShader(std::vector<ShaderInfo>& shaders) {
   if (resProgramLink == GL_FALSE) {
     // ¥¶¿Ì¡¥Ω” ß∞‹
     std::cout << "shader program link failure!" << std::endl;
+    GLsizei log_length = 0;
+    GLchar message[1024];
+    glGetProgramInfoLog(program, 1024, &log_length, message);
+    std::cout << message << std::endl;
     exit(EXIT_FAILURE);
   }
 

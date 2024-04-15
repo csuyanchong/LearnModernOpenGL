@@ -97,8 +97,8 @@
     <None Include="shaders\frag.glsl" />
     <None Include="bin\data\shaders\frag.glsl" />
     <None Include="bin\data\shaders\vert.glsl" />
-    <None Include="data\shaders\frag.glsl" />
-    <None Include="data\shaders\vert.glsl" />
+    <None Include="data\shaders\blinn_phong.frag" />
+    <None Include="data\shaders\blinn_phong.vert" />
     <None Include="post_build_event.bat">
       <Filter>源文件</Filter>
     </None>

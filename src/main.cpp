@@ -91,6 +91,19 @@ std::string pathDiffuseTexture = MODELS_DIR + nameDiffuseTexture;
 /* 模型材质颜色 */
 glm::vec3 materialColor = glm::vec3(1.0f, 0, 0);
 
+/* shader文件地址 */
+
+std::string SHADER_DIR = "./data/shaders/";
+std::string blinn_phong_vert_shader = "blinn_phong.vert";
+std::string blinn_phong_frag_shader = "blinn_phong.frag";
+
+std::string texture_map_vert_shader = "texture_map.vert";
+std::string texture_map_frag_shader = "texture_map.frag";
+
+/* 当前使用的shader */
+std::string curVertShader = SHADER_DIR + texture_map_vert_shader;
+std::string curFragShader = SHADER_DIR + texture_map_frag_shader;
+
 /* 平行光Dirction light光照模型 */
 struct DirectionLight {
   glm::vec3 lightPosition;
@@ -135,6 +148,66 @@ glm::vec3 dirLight;
 /* 灯光旋转参数 */
 GLfloat lightRotationSpeed = 0;
 
+void uniformBlinnPhongShader(ShaderProgramUtil programUtil) {
+  bool resModifyMVP = programUtil.glModifyUniformMat44("u_mvp", modelViewProjection);
+  if (!resModifyMVP) {
+    //exit(EXIT_FAILURE);
+  }
+
+  bool resModifyMV = programUtil.glModifyUniformMat44("u_mv", modelView);
+  if (!resModifyMV) {
+    //exit(EXIT_FAILURE);
+  }
+
+  bool resModifyMVNormal = programUtil.glModifyUniformMat33("u_normal", modelViewForNormal);
+  if (!resModifyMVNormal) {
+    //exit(EXIT_FAILURE);
+  }
+
+  bool resModifyKa = programUtil.glModifyUniformVec3("u_ka", material.ka);
+  if (!resModifyKa) {
+    //exit(EXIT_FAILURE);
+  }
+
+  resModifyKa = programUtil.glModifyUniformVec3("u_kd", material.kd);
+  if (!resModifyKa) {
+    //exit(EXIT_FAILURE);
+  }
+
+  resModifyKa = programUtil.glModifyUniformVec3("u_ks", material.ks);
+  if (!resModifyKa) {
+    //exit(EXIT_FAILURE);
+  }
+
+  resModifyKa = programUtil.glModifyUniformFloat("u_alpha", material.alpha);
+  if (!resModifyKa) {
+    //exit(EXIT_FAILURE);
+  }
+
+  bool resModifyLight = programUtil.glModifyUniformVec3("u_dirLight", dirLight);
+  if (!resModifyLight) {
+    //exit(EXIT_FAILURE);
+  }
+}
+
+void uniformTextureMapShader(ShaderProgramUtil programUtil) {
+
+  bool resModifyMVP = programUtil.glModifyUniformMat44("v_u_mvp", modelViewProjection);
+  if (!resModifyMVP) {
+    //exit(EXIT_FAILURE);
+  }
+
+  bool resModifySample2d_0 = programUtil.glModifyUniformInt1("f_u_sample2d_0", 0);
+  if (!resModifySample2d_0) {
+    //exit(EXIT_FAILURE);
+  }
+
+  bool resModifySample2d_1 = programUtil.glModifyUniformInt1("f_u_sample2d_1", 1);
+  if (!resModifySample2d_1) {
+    //exit(EXIT_FAILURE);
+  }
+
+}
 
 void preCompute() {
   // 计算mv, mvp, mvNormal
@@ -192,60 +265,8 @@ void preDraw() {
   // 查询并修改全局变量
   ShaderProgramUtil programUtil(programPipeline);
 
-  bool resModifyMVP = programUtil.glModifyUniformMat44("v_u_mvp", modelViewProjection);
-  if (!resModifyMVP) {
-    //exit(EXIT_FAILURE);
-  }
-
-  bool resModifySample2d = programUtil.glModifyUniformInt1("f_u_sample2d", 0);
-  if (!resModifySample2d) {
-    //exit(EXIT_FAILURE);
-  }
-
-  //bool resModifyMVP = programUtil.glModifyUniformMat44("u_mvp", modelViewProjection);
-  //if (!resModifyMVP) {
-  //  //exit(EXIT_FAILURE);
-  //}
-
-  //bool resModifyMV = programUtil.glModifyUniformMat44("u_mv", modelView);
-  //if (!resModifyMV) {
-  //  //exit(EXIT_FAILURE);
-  //}
-
-  //bool resModifyMVNormal = programUtil.glModifyUniformMat33("u_normal", modelViewForNormal);
-  //if (!resModifyMVNormal) {
-  //  //exit(EXIT_FAILURE);
-  //}
-
-  //bool resModifyKa = programUtil.glModifyUniformVec3("u_ka", material.ka);
-  //if (!resModifyKa) {
-  //  //exit(EXIT_FAILURE);
-  //}
-
-  //resModifyKa = programUtil.glModifyUniformVec3("u_kd", material.kd);
-  //if (!resModifyKa) {
-  //  //exit(EXIT_FAILURE);
-  //}
-
-  //resModifyKa = programUtil.glModifyUniformVec3("u_ks", material.ks);
-  //if (!resModifyKa) {
-  //  //exit(EXIT_FAILURE);
-  //}
-
-  //resModifyKa = programUtil.glModifyUniformFloat("u_alpha", material.alpha);
-  //if (!resModifyKa) {
-  //  //exit(EXIT_FAILURE);
-  //}
-
-  //bool resModifyLight = programUtil.glModifyUniformVec3("u_dirLight", dirLight);
-  //if (!resModifyLight) {
-  //  //exit(EXIT_FAILURE);
-  //}
-
-  //bool resModifySample2d = programUtil.glModifyUniformInt1("u_texture_sample_2d", 0);
-  //if (!resModifyLight) {
-  //  //exit(EXIT_FAILURE);
-  //}
+  //uniformBlinnPhongShader(programUtil);
+  uniformTextureMapShader(programUtil);
 }
 
 void draw() {
@@ -335,11 +356,11 @@ void createVertexData() {
 void createGraphicPipeline() {
   std::vector<ShaderInfo> shaders;
   ShaderInfo vertInfo = {
-    GL_VERTEX_SHADER, "./data/shaders/texture_map.vert"
+    GL_VERTEX_SHADER, curVertShader
   };
 
   ShaderInfo fragInfo = {
-    GL_FRAGMENT_SHADER, "./data/shaders/texture_map.frag"
+    GL_FRAGMENT_SHADER, curFragShader
   };
 
   shaders.push_back(vertInfo);
