@@ -9,49 +9,46 @@ namespace {
   /* 顶点数组对象 */
   GLuint vao = 0;
   /* 顶点缓存对象 */
-  GLuint buffer_position_id = 0;
-  GLuint buffer_normal_id = 1;
-  GLuint buffer_texcoord_id = 2;
-  GLuint buffer_index_id = 3;
+  GLuint vbo = 0;
+  /* 索引缓存对象 */
+  GLuint ibo = 0;
 
   void CreateAndPopulateBuffer(std::vector<Vertex> _vertices, std::vector<GLuint> _indices) {
     // 创建vao
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    // 偏移设置
-    GLsizei strideVertex = 8 * sizeof(GLfloat);
-    GLintptr vertex_position_offset = 0 * sizeof(GLfloat);
-    GLintptr vertex_normal_offset = 3 * sizeof(GLfloat);
-    GLintptr vertex_texcoord_offset = 6 * sizeof(GLfloat);
+    // 创建索引缓存
+    glGenBuffers(1, &ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices.size() * sizeof(GLuint), _indices.data(), GL_STATIC_DRAW);
 
-    // 顶点位置缓冲
-    glGenBuffers(1, &buffer_position_id);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer_position_id);
+    // 创建顶点缓存
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(Vertex), _vertices.data(), GL_STATIC_DRAW);
 
     // 向vao解释attribute对应的缓存内容
+    
+    // 偏移参数设置
+    GLsizei strideVertex = sizeof(Vertex);
+    GLintptr vertex_position_offset = 0 * sizeof(GLfloat);
+    GLintptr vertex_normal_offset = 3 * sizeof(GLfloat);
+    GLintptr vertex_texcoord_offset = 6 * sizeof(GLfloat);
+    
+    // 顶点位置属性
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, strideVertex, (GLvoid*)vertex_position_offset);
-    glDisableVertexAttribArray(0);
 
-    // 顶点法线缓冲
-    glGenBuffers(1, &buffer_normal_id);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer_normal_id);
-    glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(Vertex), _vertices.data(), GL_STATIC_DRAW);
+    // 顶点法线属性
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, strideVertex, (GLvoid*)vertex_normal_offset);
-    glDisableVertexAttribArray(1);
 
-    // uv坐标缓冲
-    glGenBuffers(1, &buffer_texcoord_id);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer_texcoord_id);
-    glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(Vertex), _vertices.data(), GL_STATIC_DRAW);
+    // uv坐标属性
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, strideVertex, (GLvoid*)vertex_texcoord_offset);
-    glDisableVertexAttribArray(2);
 
-    // 索引缓冲
-    glGenBuffers(1, &buffer_index_id);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_index_id);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices.size() * sizeof(GLuint), _indices.data(), GL_STATIC_DRAW);
+    // 创建完先关闭，绘制前再启用
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
   }
 }
 
