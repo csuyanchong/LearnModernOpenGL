@@ -250,6 +250,8 @@ void clearSetting() {
 
   // 隐藏面消除
   glEnable(GL_DEPTH_TEST);
+  //// 开启MSAA
+  //glEnable(GL_MULTISAMPLE);
 }
 
 void preDraw() {
@@ -328,12 +330,25 @@ void frame_buffer_size_callback(GLFWwindow* window, int width, int height) {
   glViewport(0, 0, width, height);
 }
 
+void query() {
+  // 查询默认framebuffer id
+  GLint oriBuffer = 0;
+  glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &oriBuffer);
+
+  // 查询多重采样MSAA所支持的最大采样数
+  GLint maxSamples = 0;
+  glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
+  std::cout << "Supported MAX SAMPLES COUNT: " << maxSamples << std::endl;
+}
+
 void initSetup() {
   // 初始化glfw
   if (glfwInit() == GLFW_FALSE) {
     std::cout << "glfw library 初始化失败！" << std::endl;
     exit(EXIT_FAILURE);
   }
+  // 设置MSAA
+  glfwWindowHint(GLFW_SAMPLES, 4);
   // 创建窗口
   window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "LearnMordenOpenGL", NULL, NULL);
   glfwMakeContextCurrent(window);
@@ -342,6 +357,8 @@ void initSetup() {
   // 键盘事件回调
   glfwSetKeyCallback(window, key_callback);
   glfwSetFramebufferSizeCallback(window, frame_buffer_size_callback);
+  // 查询
+  query();
 }
 
 void createVertexData() {
