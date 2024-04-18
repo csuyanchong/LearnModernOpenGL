@@ -6,11 +6,12 @@
 #include <vector>
 
 /* Src header */
+#include "../sceneobject/SceneObject.h"
 #include "../mesh/Mesh.h"
 #include "../texture/Texture.h"
 #include "../texture/GLTextureManager.h"
 
-class Model {
+class Model : public SceneObject{
 public:
   Model();
   ~Model();
@@ -18,7 +19,7 @@ public:
   void preDraw();
   void draw();
 
-private:
+public:
   std::vector<Mesh> meshes;
   std::vector<Texture> textures;
   GLTextureManager textureManager;

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+  <window>
+    <title>Learn Morden OpenGL</title>
+    <width>1280</width>
+    <height>720</height>
+    <isFullScreen>false</isFullScreen>
+    <position_x>200</position_x>
+    <position_y>200</position_y>
+  </window>
+</root>

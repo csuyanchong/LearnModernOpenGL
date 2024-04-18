@@ -221,6 +221,17 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\shader\ShaderManager.cpp" />
+    <ClCompile Include="src\shader\BlinnPhongShader.cpp" />
+    <ClCompile Include="src\render\NormalRenderPass.cpp" />
+    <ClCompile Include="src\render\RenderToTexturePass.cpp" />
+    <ClCompile Include="src\render\RenderPass.cpp" />
+    <ClCompile Include="src\scene\Scene.cpp" />
+    <ClCompile Include="src\app\App.cpp" />
+    <ClCompile Include="src\shader\Shader.cpp" />
+    <ClCompile Include="src\material\Material.cpp" />
+    <ClCompile Include="src\sceneobject\SceneObject.cpp" />
+    <ClCompile Include="src\primitive\Plane.cpp" />
     <ClCompile Include="src\shaderutil\ShaderProgramUtil.cpp" />
     <ClCompile Include="src\light\DirectionLight.cpp" />
     <ClCompile Include="src\model\Model.cpp" />
@@ -232,8 +243,20 @@
     <ClCompile Include="src\thirdparty\gl3w\gl3w.c" />
     <ClCompile Include="src\thirdparty\lodepng\lodepng.cpp" />
     <ClCompile Include="src\texture\Texture.cpp" />
+    <ClCompile Include="src\window\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\shader\ShaderManager.h" />
+    <ClInclude Include="src\shader\BlinnPhongShader.h" />
+    <ClInclude Include="src\render\NormalRenderPass.h" />
+    <ClInclude Include="src\render\RenderToTexturePass.h" />
+    <ClInclude Include="src\render\RenderPass.h" />
+    <ClInclude Include="src\scene\Scene.h" />
+    <ClInclude Include="src\app\App.h" />
+    <ClInclude Include="src\shader\Shader.h" />
+    <ClInclude Include="src\material\Material.h" />
+    <ClInclude Include="src\sceneobject\SceneObject.h" />
+    <ClInclude Include="src\primitive\Plane.h" />
     <ClInclude Include="src\shaderutil\ShaderProgramUtil.h" />
     <ClInclude Include="src\light\DirectionLight.h" />
     <ClInclude Include="src\model\Model.h" />
@@ -247,6 +270,7 @@
     <ClInclude Include="src\shaderutil\ShaderUtil.h" />
     <ClInclude Include="src\texture\GLTextureManager.h" />
     <ClInclude Include="src\texture\Texture.h" />
+    <ClInclude Include="src\window\Window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
@@ -260,6 +284,9 @@
     <None Include="shaders\frag.glsl" />
     <None Include="shaders\vert.glsl" />
     <None Include="post_build_event.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="data\config\config.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
