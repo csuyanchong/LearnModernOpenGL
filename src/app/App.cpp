@@ -46,14 +46,7 @@ void App::exitApp() {
 }
 
 void App::initLibray() {
-  // 初始化glfw
-  if (glfwInit() == GLFW_FALSE) {
-    std::cout << "glfw library 初始化失败！" << std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  // 初始化gl3w
-  gl3wInit();
+ 
 }
 
 void App::setupApp() {
