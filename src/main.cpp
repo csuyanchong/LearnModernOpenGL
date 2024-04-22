@@ -331,14 +331,18 @@ void frame_buffer_size_callback(GLFWwindow* window, int width, int height) {
 }
 
 void query() {
+  std::cout << "Hardware capability query" << std::endl;
+  std::cout << "----------------------------------------" << std::endl;
   // 查询默认framebuffer id
   GLint oriBuffer = 0;
   glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &oriBuffer);
+  std::cout << "--Default framebuffer id: " << oriBuffer << std::endl;
 
   // 查询多重采样MSAA所支持的最大采样数
   GLint maxSamples = 0;
   glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
-  std::cout << "Supported MAX SAMPLES COUNT: " << maxSamples << std::endl;
+  std::cout << "--Supported max sample count: " << maxSamples << std::endl;
+  std::cout << "----------------------------------------" << std::endl;
 }
 
 void initSetup() {
