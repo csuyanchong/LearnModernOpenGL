@@ -73,7 +73,13 @@ const std::string MODELS_DIR = "./data/models/objmodel/";
 std::string nameModel = "teapot.obj";
 std::string pathModel = MODELS_DIR + nameModel;
 
-Model model;
+/* 茶壶模型 */
+Model teapot;
+
+/* 平面模型 */
+Model plane;
+std::string namePlane = "plane.obj";
+std::string pathPlane = MODELS_DIR + namePlane;
 
 /* 模型贴图 */
 std::string nameDiffuseTexture = "brick.png";
@@ -259,7 +265,7 @@ void preDraw() {
   // 使用图形管线
   glUseProgram(programPipeline);
   
-  model.preDraw();
+  plane.preDraw();
  
   // 预计算着色参数
   preCompute();
@@ -272,7 +278,7 @@ void preDraw() {
 }
 
 void draw() {
-  model.draw();
+  plane.draw();
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -367,9 +373,15 @@ void initSetup() {
 
 void createVertexData() {
   // 加载模型文件
-  bool resLoadModel = model.loadFromFile(pathModel);
+  bool resLoadModel = teapot.loadFromFile(pathModel);
   if (!resLoadModel) {
     std::cout << "从路径" + pathModel + "加载模型失败！";
+    exit(EXIT_FAILURE);
+  }
+
+  bool resLoadPlane = plane.loadFromFile(pathPlane);
+  if (!resLoadPlane) {
+    std::cout << "从路径" + pathPlane + "加载模型失败！";
     exit(EXIT_FAILURE);
   }
 }
@@ -390,11 +402,29 @@ void createGraphicPipeline() {
   programPipeline = loadShader(shaders);
 }
 
+void renderTeapotToTexture() {
+
+}
+
+void firstPass() {
+  // 第一遍，渲染茶壶到纹理
+  renderTeapotToTexture();
+}
+
+void drawPlane() {
+  
+}
+
+void secondPass() {
+  // 第二遍，使用第一遍渲染的茶壶纹理，显示到平面模型上。
+  drawPlane();
+}
+
 void mainLoop() {
   while (!glfwWindowShouldClose(window))
   {
-    preDraw();
-    draw();
+    firstPass();
+    secondPass();
     glfwSwapBuffers(window);
     glfwPollEvents();
   }

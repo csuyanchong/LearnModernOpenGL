@@ -104,5 +104,7 @@
     </None>
     <None Include="data\shaders\texture_map.vert" />
     <None Include="data\shaders\texture_map.frag" />
+    <None Include="data\shaders\render_to_texture.vert" />
+    <None Include="data\shaders\render_to_texture.frag" />
   </ItemGroup>
 </Project>
