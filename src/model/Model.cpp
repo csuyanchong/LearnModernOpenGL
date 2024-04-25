@@ -167,6 +167,7 @@ bool Model::loadFromFile(const std::string& filePath) {
     return false;
   }
 
+
   _directory = filePath.substr(0, filePath.find_last_of("/\\"));
 
   // 处理OpenGL节点

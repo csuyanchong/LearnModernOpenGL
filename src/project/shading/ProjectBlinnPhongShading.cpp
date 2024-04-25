@@ -15,7 +15,6 @@
 #include <glm/ext/scalar_constants.hpp>
 #include <lodepng/lodepng.h>
 
-
 // Program src header
 #include "../../shaderutil/ShaderUtil.h"
 //#include "camera/Camera.h"
@@ -51,10 +50,13 @@ void ProjectBlinnPhongShading::initSetup() {
     exit(EXIT_FAILURE);
   }
   // 设置MSAA
-  glfwWindowHint(GLFW_SAMPLES, 4);
+  //glfwWindowHint(GLFW_SAMPLES, 4);
+  // 初始化窗口位置
+  glfwWindowHint(GLFW_POSITION_X, WINDOW_POSITION_X);
+  glfwWindowHint(GLFW_POSITION_Y, WINDOW_POSITION_Y);
   // 创建窗口
   window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "LearnMordenOpenGL", NULL, NULL);
-  glfwSetWindowPos(window, SCREEN_POSITION_X, SCREEN_POSITION_Y);
+  //glfwSetWindowPos(window, SCREEN_POSITION_X, SCREEN_POSITION_Y);
   glfwMakeContextCurrent(window);
   // 初始化gl3w
   gl3wInit();

@@ -13,8 +13,8 @@ public:
   ProjectBlinnPhongShading();
   ~ProjectBlinnPhongShading();
   void run();
+
 private:
- 
   void initSetup();
   void createVertexData();
   void createGraphicPipeline();
@@ -29,7 +29,6 @@ private:
   void preCompute();
   void passDataToShader(ShaderProgramUtil shaderUtil);
 
-
 private:
   /* 窗口 */
   GLFWwindow* window;
@@ -37,8 +36,8 @@ private:
   int SCREEN_WIDTH = 1280;
   /* 屏幕高度 */
   int SCREEN_HEIGHT = 720;
-  int SCREEN_POSITION_X = 640;
-  int SCREEN_POSITION_Y = 200;
+  int WINDOW_POSITION_X = 640;
+  int WINDOW_POSITION_Y = 200;
   /* 屏幕清除颜色 */
   GLfloat CLEAR_COLOR[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
   /* 屏幕深度缓存清除值 */
@@ -67,7 +66,6 @@ private:
   Camera camMain;
 
   /* shader文件地址 */
-
   std::string SHADER_DIR = "./data/shaders/";
   std::string blinn_phong_vert_shader = "blinn_phong.vert";
   std::string blinn_phong_frag_shader = "blinn_phong.frag";
