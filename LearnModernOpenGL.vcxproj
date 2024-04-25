@@ -221,6 +221,10 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\project\textures\ProjectTexture.cpp" />
+    <ClCompile Include="src\project\shading\ProjectBlinnPhongShading.cpp" />
+    <ClCompile Include="src\project\basic\ProjectBasicDraw.cpp" />
+    <ClCompile Include="src\project\renderbuffer\ProjectRenderToTexture.cpp" />
     <ClCompile Include="src\shaderutil\ShaderProgramUtil.cpp" />
     <ClCompile Include="src\light\DirectionLight.cpp" />
     <ClCompile Include="src\model\Model.cpp" />
@@ -234,6 +238,10 @@
     <ClCompile Include="src\texture\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\project\textures\ProjectTexture.h" />
+    <ClInclude Include="src\project\shading\ProjectBlinnPhongShading.h" />
+    <ClInclude Include="src\project\basic\ProjectBasicDraw.h" />
+    <ClInclude Include="src\project\renderbuffer\ProjectRenderToTexture.h" />
     <ClInclude Include="src\shaderutil\ShaderProgramUtil.h" />
     <ClInclude Include="src\light\DirectionLight.h" />
     <ClInclude Include="src\model\Model.h" />

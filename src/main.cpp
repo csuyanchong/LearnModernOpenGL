@@ -21,6 +21,8 @@
 #include "mesh/Mesh.h"
 #include "model/Model.h"
 #include "shaderutil/ShaderProgramUtil.h"
+#include "project/basic/ProjectBasicDraw.h"
+#include "project/shading/ProjectBlinnPhongShading.h"
 
 /* 屏幕宽度 */
 static const int SCREEN_WIDTH = 1024;
@@ -63,7 +65,7 @@ Camera camMain(
   glm::vec3(1, 2, 3),
   glm::vec3(0, 0, -1),
   glm::vec3(0, 1.0f, 0)
-  );
+);
 
 GLfloat moveCamVerticalSpeed = 0.1f;
 GLfloat moveCamHorizenSpeed = 0.1f;
@@ -116,9 +118,9 @@ struct DirectionLight {
   glm::vec3 lightColor;
 };
 
-DirectionLight light = { 
-  glm::vec3(1.0f, 1.0f, 1.0f), 
-  glm::vec3(1.0f, 1.0f, 1.0f) 
+DirectionLight light = {
+  glm::vec3(1.0f, 1.0f, 1.0f),
+  glm::vec3(1.0f, 1.0f, 1.0f)
 };
 
 /* 材质模型 */
@@ -231,7 +233,7 @@ void preCompute() {
 
   modelView = viewMatrix * modelMatrix;
   modelViewProjection = projectMatrix * viewMatrix * modelMatrix;
- 
+
   // 法线在view空间的变换
   glm::mat4x4 modelViewForNormal44 = glm::transpose(glm::inverse(modelView));
   modelViewForNormal = modelViewForNormal44;
@@ -264,9 +266,9 @@ void preDraw() {
   clearSetting();
   // 使用图形管线
   glUseProgram(programPipeline);
-  
+
   plane.preDraw();
- 
+
   // 预计算着色参数
   preCompute();
 
@@ -412,7 +414,7 @@ void firstPass() {
 }
 
 void drawPlane() {
-  
+
 }
 
 void secondPass() {
@@ -436,15 +438,44 @@ void cleanUp() {
 }
 
 int main(int argc, char* argv[]) {
-  // 1.初始化设置
-  initSetup();
-  // 2.创建顶点数据
-  createVertexData();
-  // 3.创建图形管线
-  createGraphicPipeline();
-  // 4.主循环
-  mainLoop();
-  // 5.清理
-  cleanUp();
+  // TODO... 提供界面，显示项目列表，用户可以选择不同的项目。
+  while (true) {
+    std::cout << "当前项目列表如下：" << std::endl;
+    std::cout << "1: basic" << std::endl;
+    std::cout << "2: blinn phong shading" << std::endl;
+    std::cout << "3: textures" << std::endl;
+    std::cout << "4: render to texture" << std::endl;
+    std::cout << "100: 清除控制台" << std::endl;
+
+    std::cout << "\n" << std::endl;
+    std::cout << "请输入项目编号：" << std::endl;
+
+    int inputNum = 0;
+    std::cin >> inputNum;
+
+    switch (inputNum) {
+    case 1: {
+      std::cout << "选择了1: basic" << std::endl;
+      ProjectBasicDraw proj;
+      proj.run();
+      break;
+    }
+    case 2: {
+      std::cout << "选择了2: blinn phong shading" << std::endl;
+      ProjectBlinnPhongShading proj;
+      proj.run();
+      break;
+    }
+    case 100: {
+      system("cls");
+      break;
+    }
+    default:
+      break;
+    }
+  }
+
+
+
   return 0;
 }

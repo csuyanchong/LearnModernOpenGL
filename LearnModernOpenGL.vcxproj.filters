@@ -48,6 +48,18 @@
     <ClCompile Include="src\texture\GLTextureManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\project\basic\ProjectBasicDraw.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\project\renderbuffer\ProjectRenderToTexture.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\project\shading\ProjectBlinnPhongShading.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\project\textures\ProjectTexture.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\GLFW\glfw3.h">
@@ -87,6 +99,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\texture\GLTextureManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\project\renderbuffer\ProjectRenderToTexture.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\project\basic\ProjectBasicDraw.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\project\shading\ProjectBlinnPhongShading.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\project\textures\ProjectTexture.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
