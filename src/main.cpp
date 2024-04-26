@@ -1,3 +1,8 @@
+// Platform
+#ifdef _WIN32
+#include <Windows.h>
+#endif // _WIN32
+
 // Standard library header
 #include <iostream>
 #include <string>
@@ -23,6 +28,15 @@
 #include "shaderutil/ShaderProgramUtil.h"
 #include "project/basic/ProjectBasicDraw.h"
 #include "project/shading/ProjectBlinnPhongShading.h"
+#include "project/renderbuffer/ProjectRenderToTexture.h"
+
+
+#ifdef _WIN32
+
+#define minimizeConsoleWindow() ShowWindow(GetConsoleWindow(), SW_MINIMIZE)
+#define showConsoleWindow() ShowWindow(GetConsoleWindow(), SW_NORMAL)
+
+#endif // _WIN32
 
 /* 屏幕宽度 */
 static const int SCREEN_WIDTH = 1024;
@@ -456,26 +470,45 @@ int main(int argc, char* argv[]) {
     switch (inputNum) {
     case 1: {
       std::cout << "选择了1: basic" << std::endl;
+      minimizeConsoleWindow();
       ProjectBasicDraw proj;
       proj.run();
       break;
     }
+
     case 2: {
       std::cout << "选择了2: blinn phong shading" << std::endl;
+      minimizeConsoleWindow();
       ProjectBlinnPhongShading proj;
       proj.run();
       break;
     }
+
+    case 3: {
+      std::cout << "选择了3: textures" << std::endl;
+      minimizeConsoleWindow();
+      // TODO...
+      break;
+    }
+
+    case 4: {
+      std::cout << "选择了4: render to texture" << std::endl;
+      minimizeConsoleWindow();
+      ProjectRenderToTexture proj;
+      proj.run();
+      break;
+    }
+
     case 100: {
       system("cls");
       break;
     }
+
     default:
       break;
     }
+
+    showConsoleWindow();
   }
-
-
-
   return 0;
 }

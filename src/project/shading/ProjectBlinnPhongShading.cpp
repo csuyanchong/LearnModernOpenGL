@@ -94,8 +94,7 @@ void ProjectBlinnPhongShading::setCamera() {
 }
 
 void ProjectBlinnPhongShading::mainLoop() {
-  while (!glfwWindowShouldClose(window))
-  {
+  while (!glfwWindowShouldClose(window)) {
     preDraw();
     draw();
     glfwSwapBuffers(window);
