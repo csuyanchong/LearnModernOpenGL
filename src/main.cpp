@@ -281,7 +281,7 @@ void preDraw() {
   // 使用图形管线
   glUseProgram(programPipeline);
 
-  plane.preDraw();
+  //plane.preDraw();
 
   // 预计算着色参数
   preCompute();

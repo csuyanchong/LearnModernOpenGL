@@ -15,7 +15,6 @@ public:
   Model();
   ~Model();
   bool loadFromFile(const std::string& filePath);
-  void preDraw();
   void draw();
 
 private:

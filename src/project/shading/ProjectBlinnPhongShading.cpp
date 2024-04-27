@@ -112,8 +112,6 @@ void ProjectBlinnPhongShading::preDraw() {
   // 使用图形管线
   glUseProgram(programPipeline);
 
-  model.preDraw();
-
   // 预计算着色参数
   preCompute();
 

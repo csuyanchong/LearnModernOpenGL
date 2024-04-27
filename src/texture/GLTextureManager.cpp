@@ -72,21 +72,27 @@ namespace {
 void GLTextureManager::setUpTexturesInGPU(std::vector<Texture> _textures) {
   size_t count = _textures.size();
   if (count == 0) {
-    return;
+    // 生成2个1x1像素的贴图, TODO...
+    count = 2;
+    bufferIds.resize(count);
+    glGenTextures((GLsizei)count, bufferIds.data());
+
+    
   }
+  else {
+    bufferIds.resize(count);
+    glGenTextures((GLsizei)count, bufferIds.data());
 
-  bufferIds.resize(count);
-  glGenTextures((GLsizei)count, bufferIds.data());
+    // 使用用棋盘格纹理测试
+    //setUpCheckBoardImageData(_textures[0]);
 
-  // 使用用棋盘格纹理测试
-  //setUpCheckBoardImageData(_textures[0]);
+    // 查询显卡支持的最大纹理单元数量
+    GLint textureCount = 0;
+    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &textureCount);
 
-  // 查询显卡支持的最大纹理单元数量
-  GLint textureCount = 0;
-  glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &textureCount);
-  
-  for (size_t i = 0; i < _textures.size(); i++) {
-    setupTextureBuffer(_textures[i], (GLuint)i);
+    for (size_t i = 0; i < _textures.size(); i++) {
+      setupTextureBuffer(_textures[i], (GLuint)i);
+    }
   }
 }
 
