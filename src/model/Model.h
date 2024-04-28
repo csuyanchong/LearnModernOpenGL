@@ -16,8 +16,8 @@ public:
   ~Model();
   bool loadFromFile(const std::string& filePath);
   void draw();
-
-private:
+  
+public:
   std::vector<Mesh> meshes;
   std::vector<Texture> textures;
   GLTextureManager textureManager;

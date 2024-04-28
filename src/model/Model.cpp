@@ -183,7 +183,7 @@ bool Model::loadFromFile(const std::string& filePath) {
 }
 
 void Model::draw() {
-  textureManager.activeTextures();
+  //textureManager.activeTextures();
 
   for (size_t i = 0; i < meshes.size(); i++) {
     Mesh mesh = meshes[i];

@@ -30,11 +30,15 @@ private:
   void mainLoop();
   void draw();
   void drawFirstPass();
+  void createFrameBuffer();
+  void drawTarget(GLuint frameBufferId);
+  void passDataToShader2(GLuint shaderProgram);
   void drawSecondPass();
   void setClearBuffer();
   void computeShaderData();
-  void passDataToShader(GLuint shaderProgram);
+  void passDataToShader1(GLuint shaderProgram);
   void cleanUp();
+
 private:
   /* 窗口 */
   GLFWwindow* window;
@@ -50,10 +54,15 @@ private:
   GLfloat CLEAR_DEPTH = 1.0f;
 
   Model plane;
+  Model teapot;
   /* 模型文件地址 */
   const std::string MODELS_DIR = "./data/models/objmodel/";
   std::string namePlane = "plane.obj";
   std::string pathPlane = MODELS_DIR + namePlane;
+
+  std::string nameTeapot = "teapot.obj";
+  std::string pathTeapot = MODELS_DIR + nameTeapot;
+
 
   /* 透视投影 */
   GLfloat FOV = 45.0f;
@@ -103,6 +112,14 @@ private:
   /* 灯光旋转参数 */
   GLfloat lightRotationSpeed = 0;
 
+  /* 帧缓存id*/
+  GLuint frameBufferId;
+
+  /* 渲染纹理id*/
+  GLuint textureId;
+  /* 纹理单元*/
+  GLuint textureUnitTarget = 100;
+  GLuint sampleUnit_1 = 0;
 
 };
 
