@@ -125,17 +125,17 @@ void ProjectRenderToTexture::createFrameBuffer(){
   glGenTextures(1, &textureId);
   glBindTexture(GL_TEXTURE_2D, textureId);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0,
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0,
     GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
   // 设置参数
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-  glGenerateMipmap(GL_TEXTURE_2D);
+  //glGenerateMipmap(GL_TEXTURE_2D);
 
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
 
@@ -152,10 +152,7 @@ void ProjectRenderToTexture::drawTarget(GLuint frameBufferId) {
   // 使用帧缓冲区
   glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
   // 清除设置
-  glClearBufferfv(GL_COLOR, frameBufferId, CLEAR_COLOR);
-  glClearBufferfv(GL_DEPTH, frameBufferId, &CLEAR_DEPTH);
-  // 隐藏面消除
-  glEnable(GL_DEPTH_TEST);
+  setClearBuffer(frameBufferId, CLEAR_COLOR_GREY, &CLEAR_DEPTH);
   // 使用图形管线
   glUseProgram(shaderProgram);
 
@@ -180,13 +177,15 @@ void ProjectRenderToTexture::drawTarget(GLuint frameBufferId) {
   glActiveTexture((GLenum)(GL_TEXTURE1));
   glBindTexture(GL_TEXTURE_2D, bufferIds[1]);
 
+  //glActiveTexture((GLenum)(GL_TEXTURE2));
+  //glBindTexture(GL_TEXTURE_2D, textureId);
+
   // 计算shader所需变量值
   computeShaderData();
   // 修改shader变量
   passDataToShader1(shaderProgram);
   // 绘制茶壶
   teapot.draw();
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void ProjectRenderToTexture::passDataToShader2(GLuint shaderProgram) {
@@ -213,7 +212,7 @@ void ProjectRenderToTexture::drawSecondPass() {
   // 使用window帧缓冲区
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   // 清除设置
-  setClearBuffer();
+  setClearBuffer(0, CLEAR_COLOR_GREY, &CLEAR_DEPTH);
   // 使用图形管线
   glUseProgram(shaderProgram);
 
@@ -249,9 +248,9 @@ void ProjectRenderToTexture::drawSecondPass() {
   plane.draw();
 }
 
-void ProjectRenderToTexture::setClearBuffer() {
-  glClearBufferfv(GL_COLOR, 0, CLEAR_COLOR);
-  glClearBufferfv(GL_DEPTH, 0, &CLEAR_DEPTH);
+void ProjectRenderToTexture::setClearBuffer(GLuint frameBufferId, GLfloat* clearColor, GLfloat* clearDepth) {
+  glClearBufferfv(GL_COLOR, frameBufferId, clearColor);
+  glClearBufferfv(GL_DEPTH, frameBufferId, clearDepth);
   // 隐藏面消除
   glEnable(GL_DEPTH_TEST);
 }

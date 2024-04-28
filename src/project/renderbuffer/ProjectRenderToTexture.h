@@ -34,7 +34,7 @@ private:
   void drawTarget(GLuint frameBufferId);
   void passDataToShader2(GLuint shaderProgram);
   void drawSecondPass();
-  void setClearBuffer();
+  void setClearBuffer(GLuint frameBufferId, GLfloat* clearColor, GLfloat* clearDepth);
   void computeShaderData();
   void passDataToShader1(GLuint shaderProgram);
   void cleanUp();
@@ -49,7 +49,8 @@ private:
   int WINDOW_POSITION_X = 640;
   int WINDOW_POSITION_Y = 200;
   /* 屏幕清除颜色 */
-  GLfloat CLEAR_COLOR[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+  GLfloat CLEAR_COLOR_BLACK[3] = { 0.0f, 0.0f, 0.0f };
+  GLfloat CLEAR_COLOR_GREY[3] = { 0.5f, 0.5f, 0.5f };
   /* 屏幕深度缓存清除值 */
   GLfloat CLEAR_DEPTH = 1.0f;
 
@@ -63,6 +64,7 @@ private:
   std::string nameTeapot = "teapot.obj";
   std::string pathTeapot = MODELS_DIR + nameTeapot;
 
+  glm::vec3 colorPlane = glm::vec3(1.0f, 1.0f, 1.0f);
 
   /* 透视投影 */
   GLfloat FOV = 45.0f;
@@ -72,7 +74,7 @@ private:
   /* 模型变换 */
   GLfloat rotation = 0;
   GLfloat forward = 0;
-  GLfloat scale = 1.0f;
+  GLfloat scale = 0.1f;
 
   /* 相机 */
   Camera camMain;
