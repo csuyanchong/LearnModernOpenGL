@@ -121,26 +121,18 @@ void ProjectRenderToTexture::createFrameBuffer(){
   glGenFramebuffers(1, &frameBufferId);
   glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
 
-  // 创建txture obj
-  glGenTextures(1, &textureId);
-  glBindTexture(GL_TEXTURE_2D, textureId);
-
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0,
-    GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-  // 设置参数
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-  //glGenerateMipmap(GL_TEXTURE_2D);
-
+  // 创建纹理对象
+  textureId = createTextureObject(textureWidth, textureHeight);
+  // 连接纹理到帧缓存
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
 
-  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  //创建渲染缓存
+  GLuint renderBufferId;
+  renderBufferId = createRenderBufferObject(textureWidth, textureHeight, GL_DEPTH_COMPONENT);
+  // 连接渲染缓存到帧缓存
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferId);
 
+  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE) {
     // error
     std::cout << "FRAMEBUFFER FAILURE!" << std::endl;
@@ -148,11 +140,42 @@ void ProjectRenderToTexture::createFrameBuffer(){
   }
 }
 
+GLuint ProjectRenderToTexture::createTextureObject(GLuint width, GLuint height) {
+  GLuint textureId;
+  glGenTextures(1, &textureId);
+  glBindTexture(GL_TEXTURE_2D, textureId);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+    GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+  // 设置参数
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  //glGenerateMipmap(GL_TEXTURE_2D);
+  return textureId;
+}
+
+GLuint ProjectRenderToTexture::createRenderBufferObject(GLuint width, GLuint height, GLenum type) {
+  GLuint renderBufferId;
+  glGenRenderbuffers(1, &renderBufferId);
+  glBindRenderbuffer(GL_RENDERBUFFER, renderBufferId);
+  glRenderbufferStorage(GL_RENDERBUFFER, type, width, height);
+  return renderBufferId;
+}
+
 void ProjectRenderToTexture::drawTarget(GLuint frameBufferId) {
   // 使用帧缓冲区
   glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
   // 清除设置
-  setClearBuffer(frameBufferId, CLEAR_COLOR_GREY, &CLEAR_DEPTH);
+  glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);
+  //glViewport(0, 0, textureWidth, textureHeight);
+  //setClearBuffer1(frameBufferId, CLEAR_COLOR_GREY, &CLEAR_DEPTH);
   // 使用图形管线
   glUseProgram(shaderProgram);
 
@@ -174,8 +197,8 @@ void ProjectRenderToTexture::drawTarget(GLuint frameBufferId) {
   glActiveTexture((GLenum)(GL_TEXTURE0));
   glBindTexture(GL_TEXTURE_2D, bufferIds[0]);
 
-  glActiveTexture((GLenum)(GL_TEXTURE1));
-  glBindTexture(GL_TEXTURE_2D, bufferIds[1]);
+  //glActiveTexture((GLenum)(GL_TEXTURE1));
+  //glBindTexture(GL_TEXTURE_2D, bufferIds[1]);
 
   //glActiveTexture((GLenum)(GL_TEXTURE2));
   //glBindTexture(GL_TEXTURE_2D, textureId);
@@ -202,17 +225,21 @@ void ProjectRenderToTexture::passDataToShader2(GLuint shaderProgram) {
     //exit(EXIT_FAILURE);
   }
 
-  bool resModifySample2d_1 = programUtil.glModifyUniformInt1("f_u_sample2d_specular", 3);
-  if (!resModifySample2d_1) {
-    //exit(EXIT_FAILURE);
-  }
+  //bool resModifySample2d_1 = programUtil.glModifyUniformInt1("f_u_sample2d_specular", 3);
+  //if (!resModifySample2d_1) {
+  //  //exit(EXIT_FAILURE);
+  //}
 }
 
 void ProjectRenderToTexture::drawSecondPass() {
   // 使用window帧缓冲区
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   // 清除设置
-  setClearBuffer(0, CLEAR_COLOR_GREY, &CLEAR_DEPTH);
+  //setClearBuffer1(0, CLEAR_COLOR_GREY, &CLEAR_DEPTH);
+  glClearColor(0, 0, 0, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);
+  //glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
   // 使用图形管线
   glUseProgram(shaderProgram);
 
@@ -237,8 +264,8 @@ void ProjectRenderToTexture::drawSecondPass() {
   glActiveTexture((GLenum)(GL_TEXTURE2));
   glBindTexture(GL_TEXTURE_2D, textureId);
 
-  glActiveTexture((GLenum)(GL_TEXTURE3));
-  glBindTexture(GL_TEXTURE_2D, bufferIds[1]);
+  //glActiveTexture((GLenum)(GL_TEXTURE3));
+  //glBindTexture(GL_TEXTURE_2D, bufferIds[1]);
 
   // 计算shader所需变量值
   computeShaderData();
@@ -248,9 +275,13 @@ void ProjectRenderToTexture::drawSecondPass() {
   plane.draw();
 }
 
-void ProjectRenderToTexture::setClearBuffer(GLuint frameBufferId, GLfloat* clearColor, GLfloat* clearDepth) {
-  glClearBufferfv(GL_COLOR, frameBufferId, clearColor);
-  glClearBufferfv(GL_DEPTH, frameBufferId, clearDepth);
+void ProjectRenderToTexture::setClearBuffer1(GLuint frameBufferId, GLfloat* clearColor, GLfloat* clearDepth) {
+  //glClearBufferfv(GL_COLOR, frameBufferId, clearColor);
+  //glClearBufferfv(GL_DEPTH, frameBufferId, clearDepth);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  
+ /* glClearColor(0, 0, 0, 0); 
+  glClear(GL_DEPTH_BUFFER_BIT);*/
   // 隐藏面消除
   glEnable(GL_DEPTH_TEST);
 }
@@ -298,10 +329,10 @@ void ProjectRenderToTexture::passDataToShader1(GLuint shaderProgram) {
     //exit(EXIT_FAILURE);
   }
 
-  bool resModifySample2d_1 = programUtil.glModifyUniformInt1("f_u_sample2d_specular", 1);
-  if (!resModifySample2d_1) {
-    //exit(EXIT_FAILURE);
-  }
+  //bool resModifySample2d_1 = programUtil.glModifyUniformInt1("f_u_sample2d_specular", 1);
+  //if (!resModifySample2d_1) {
+  //  //exit(EXIT_FAILURE);
+  //}
 }
 
 void ProjectRenderToTexture::cleanUp() {

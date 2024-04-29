@@ -31,10 +31,12 @@ private:
   void draw();
   void drawFirstPass();
   void createFrameBuffer();
+  GLuint createTextureObject(GLuint width, GLuint height);
+  GLuint createRenderBufferObject(GLuint width, GLuint height, GLenum type);
   void drawTarget(GLuint frameBufferId);
   void passDataToShader2(GLuint shaderProgram);
   void drawSecondPass();
-  void setClearBuffer(GLuint frameBufferId, GLfloat* clearColor, GLfloat* clearDepth);
+  void setClearBuffer1(GLuint frameBufferId, GLfloat* clearColor, GLfloat* clearDepth);
   void computeShaderData();
   void passDataToShader1(GLuint shaderProgram);
   void cleanUp();
@@ -97,8 +99,8 @@ private:
   /* shader文件地址 */
   std::string SHADER_DIR = "./data/shaders/";
 
-  std::string texture_map_vert_shader = "texture_map.vert";
-  std::string texture_map_frag_shader = "texture_map.frag";
+  std::string texture_map_vert_shader = "render_to_texture.vert";
+  std::string texture_map_frag_shader = "render_to_texture.frag";
 
   /* 当前使用的shader */
   std::string pathVertShader = SHADER_DIR + texture_map_vert_shader;
@@ -114,15 +116,18 @@ private:
   /* 灯光旋转参数 */
   GLfloat lightRotationSpeed = 0;
 
+  /* 纹理id */
+  GLuint textureId;
   /* 帧缓存id*/
   GLuint frameBufferId;
 
-  /* 渲染纹理id*/
-  GLuint textureId;
+  /* 渲染纹理宽度 */
+  GLuint textureWidth = 1024;
+  /* 渲染纹理高度 */
+  GLuint textureHeight = 1024;
   /* 纹理单元*/
   GLuint textureUnitTarget = 100;
   GLuint sampleUnit_1 = 0;
-
 };
 
 #endif // !SRC_PROJECT_RENDERBUFFER_PROJECTRENDERTOTEXTURE_H_
