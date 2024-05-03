@@ -15,12 +15,12 @@
 #include "../../model/Model.h"
 #include "../../camera/Camera.h"
 
-
 class ProjectRenderToTexture {
 public:
   ProjectRenderToTexture();
   ~ProjectRenderToTexture();
   void run();
+  void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 private:
   void createWindow();
@@ -58,6 +58,8 @@ private:
 
   Model plane;
   Model teapot;
+  Model cube;
+
   /* 模型文件地址 */
   const std::string MODELS_DIR = "./data/models/objmodel/";
   std::string namePlane = "plane.obj";
@@ -65,6 +67,9 @@ private:
 
   std::string nameTeapot = "teapot.obj";
   std::string pathTeapot = MODELS_DIR + nameTeapot;
+
+  std::string nameCube = "cube.obj";
+  std::string pathCube = MODELS_DIR + nameCube;
 
   glm::vec3 colorPlane = glm::vec3(1.0f, 1.0f, 1.0f);
 

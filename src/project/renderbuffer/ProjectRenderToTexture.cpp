@@ -14,6 +14,7 @@
 // program
 #include "../../shaderutil/ShaderUtil.h"
 #include "../../shaderutil/ShaderProgramUtil.h"
+#include "../../texture/GLTextureManager.h"
 
 ProjectRenderToTexture::ProjectRenderToTexture() {
   // 创建窗口
@@ -36,6 +37,57 @@ void ProjectRenderToTexture::run() {
   mainLoop();
 }
 
+void ProjectRenderToTexture::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
+  }
+ /* if (key == GLFW_KEY_W) {
+    camMain.moveForward(moveCamVerticalSpeed);
+  }
+  if (key == GLFW_KEY_S) {
+    camMain.moveBack(moveCamVerticalSpeed);
+  }
+
+  if (key == GLFW_KEY_A) {
+    camMain.moveLeft(moveCamHorizenSpeed);
+  }
+  if (key == GLFW_KEY_D) {
+    camMain.moveRight(moveCamHorizenSpeed);
+  }*/
+
+  if (key == GLFW_KEY_LEFT) {
+    rotation -= 5.0f;
+  }
+  if (key == GLFW_KEY_RIGHT) {
+    rotation += 5.0f;
+  }
+  if (key == GLFW_KEY_UP) {
+    forward += 0.1f;
+  }
+  if (key == GLFW_KEY_DOWN) {
+    forward -= 0.1f;
+  }
+  if (key == GLFW_KEY_T) {
+    scale += 0.001f;
+    scale = fmin(scale, 0.02f);
+  }
+  if (key == GLFW_KEY_G) {
+    scale -= 0.001f;
+    scale = fmaxf(scale, 0.002f);
+  }
+  if (key == GLFW_KEY_N)
+  {
+    scale = 0.01f;
+  }
+
+  if (key == GLFW_KEY_Z) {
+    lightRotationSpeed -= 1.0f;
+  }
+  if (key == GLFW_KEY_C) {
+    lightRotationSpeed += 1.0f;
+  }
+}
+
 void ProjectRenderToTexture::createWindow() {
   // 初始化glfw
   if (glfwInit() == GLFW_FALSE) {
@@ -51,6 +103,7 @@ void ProjectRenderToTexture::createWindow() {
   window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "LearnMordenOpenGL", NULL, NULL);
   //glfwSetWindowPos(window, SCREEN_POSITION_X, SCREEN_POSITION_Y);
   glfwMakeContextCurrent(window);
+  glfwSetWindowUserPointer(window, this);
   // 初始化gl3w
   gl3wInit();
   // 查询显卡支持的最大纹理单元数量
@@ -70,6 +123,13 @@ void ProjectRenderToTexture::createScene() {
   bool res_load_plane = plane.loadFromFile(pathPlane);
   if (!res_load_plane) {
     std::cout << "从路径" + pathPlane + "加载模型失败！";
+    exit(EXIT_FAILURE);
+  }
+
+  // 立方体
+  bool res_load_cube = cube.loadFromFile(pathCube);
+  if (!res_load_cube) {
+    std::cout << "从路径" + pathCube + "加载模型失败！";
     exit(EXIT_FAILURE);
   }
 
@@ -96,6 +156,12 @@ void ProjectRenderToTexture::createRenderPipeline() {
 }
 
 void ProjectRenderToTexture::bindInput() {
+  auto callBackFun = [](GLFWwindow* window, int key, int code, int action, int mods) {
+    static_cast<ProjectRenderToTexture*>(glfwGetWindowUserPointer(window))->keyCallback(window, key, code, action, mods);
+    };
+
+  // 键盘事件回调
+  glfwSetKeyCallback(window, callBackFun);
 }
 
 void ProjectRenderToTexture::mainLoop() {
@@ -152,8 +218,8 @@ GLuint ProjectRenderToTexture::createTextureObject(GLuint width, GLuint height) 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
   //glGenerateMipmap(GL_TEXTURE_2D);
   return textureId;
@@ -191,8 +257,8 @@ void ProjectRenderToTexture::drawTarget(GLuint frameBufferId) {
   //  sampleUnit_1++;
   //}
 
-  auto textureMgr = teapot.textureManager;
-  auto bufferIds = textureMgr.getTextureBuffers();
+  GLTextureManager& textureMgr = teapot.textureManager;
+  std::vector<GLuint> bufferIds = textureMgr.getTextureBuffers();
 
   glActiveTexture((GLenum)(GL_TEXTURE0));
   glBindTexture(GL_TEXTURE_2D, bufferIds[0]);
@@ -258,11 +324,12 @@ void ProjectRenderToTexture::drawSecondPass() {
   glActiveTexture((GLenum)(GL_TEXTURE0 + textureUnitTarget));
   glBindTexture(GL_TEXTURE_2D, textureId);*/
 
-  auto textureMgr = plane.textureManager;
-  auto bufferIds = textureMgr.getTextureBuffers();
+  GLTextureManager& textureMgr = plane.textureManager;
+  std::vector<GLuint> bufferIds = textureMgr.getTextureBuffers();
 
   glActiveTexture((GLenum)(GL_TEXTURE2));
   glBindTexture(GL_TEXTURE_2D, textureId);
+  glGenerateMipmap(GL_TEXTURE_2D);
 
   //glActiveTexture((GLenum)(GL_TEXTURE3));
   //glBindTexture(GL_TEXTURE_2D, bufferIds[1]);
