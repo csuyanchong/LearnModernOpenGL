@@ -221,6 +221,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\project\shadow\ProjectShadowMapping.cpp" />
     <ClCompile Include="src\project\textures\ProjectTexture.cpp" />
     <ClCompile Include="src\project\shading\ProjectBlinnPhongShading.cpp" />
     <ClCompile Include="src\project\basic\ProjectBasicDraw.cpp" />
@@ -238,6 +239,7 @@
     <ClCompile Include="src\texture\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\project\shadow\ProjectShadowMapping.h" />
     <ClInclude Include="src\project\textures\ProjectTexture.h" />
     <ClInclude Include="src\project\shading\ProjectBlinnPhongShading.h" />
     <ClInclude Include="src\project\basic\ProjectBasicDraw.h" />

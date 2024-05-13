@@ -29,7 +29,7 @@
 #include "project/basic/ProjectBasicDraw.h"
 #include "project/shading/ProjectBlinnPhongShading.h"
 #include "project/renderbuffer/ProjectRenderToTexture.h"
-
+#include "project/shadow/ProjectShadowMapping.h"
 
 #ifdef _WIN32
 
@@ -459,6 +459,8 @@ int main(int argc, char* argv[]) {
     std::cout << "2: blinn phong shading" << std::endl;
     std::cout << "3: textures" << std::endl;
     std::cout << "4: render to texture" << std::endl;
+    std::cout << "5: environment mapping" << std::endl;
+    std::cout << "6: shadow mapping" << std::endl;
     std::cout << "100: 清除控制台" << std::endl;
 
     std::cout << "\n" << std::endl;
@@ -495,6 +497,21 @@ int main(int argc, char* argv[]) {
       std::cout << "选择了4: render to texture" << std::endl;
       minimizeConsoleWindow();
       ProjectRenderToTexture proj;
+      proj.run();
+      break;
+    }
+
+    case 5: {
+      std::cout << "选择了5: environment mapping" << std::endl;
+      minimizeConsoleWindow();
+      // TODO...
+      break;
+    }
+
+    case 6: {
+      std::cout << "选择了6: shadow mapping" << std::endl;
+      minimizeConsoleWindow();
+      ProjectShadowMapping proj;
       proj.run();
       break;
     }
