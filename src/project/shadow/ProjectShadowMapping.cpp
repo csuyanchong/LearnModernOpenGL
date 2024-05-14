@@ -137,6 +137,11 @@ void ProjectShadowMapping::createScene() {
   camMain.setEyePosition(glm::vec3(1, 2, 3));
   camMain.setLookDirection(glm::vec3(0, 0, -1));
   camMain.setUpDirection(glm::vec3(0, 1.0f, 0));
+
+  // 灯光
+  light.position = glm::vec3(2.0f, 2.0f, 0);
+  light.toward = glm::vec3(-1.0f, -1.0f, 0);
+  light.angle = 90;
 }
 
 void ProjectShadowMapping::createRenderPipeline() {
@@ -173,7 +178,7 @@ void ProjectShadowMapping::mainLoop() {
 }
 
 void ProjectShadowMapping::draw() {
-  drawFirstPass();
+  //drawFirstPass();
   drawSecondPass();
 }
 
@@ -301,7 +306,6 @@ void ProjectShadowMapping::drawSecondPass() {
   // 使用window帧缓冲区
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   // 清除设置
-  //setClearBuffer1(0, CLEAR_COLOR_GREY, &CLEAR_DEPTH);
   glClearColor(0, 0, 0, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
@@ -311,35 +315,22 @@ void ProjectShadowMapping::drawSecondPass() {
 
   // 平面模型缩放设置
   scale = 1.0f;
-  // 分配纹理采样单元
- /* auto textureMgr = plane.textureManager;
-  auto bufferIds = textureMgr.getTextureBuffers();
-  for (size_t i = 0; i < bufferIds.size(); i++) {
-    GLuint textureId = bufferIds[i];
-    glActiveTexture((GLenum)(GL_TEXTURE0 + i + sampleUnit_1));
-    glBindTexture(GL_TEXTURE_2D, textureId);
-    sampleUnit_1++;
-  }
-
-  glActiveTexture((GLenum)(GL_TEXTURE0 + textureUnitTarget));
-  glBindTexture(GL_TEXTURE_2D, textureId);*/
-
-  GLTextureManager& textureMgr = plane.textureManager;
-  std::vector<GLuint> bufferIds = textureMgr.getTextureBuffers();
-
-  glActiveTexture((GLenum)(GL_TEXTURE2));
-  glBindTexture(GL_TEXTURE_2D, textureId);
-  glGenerateMipmap(GL_TEXTURE_2D);
-
-  //glActiveTexture((GLenum)(GL_TEXTURE3));
-  //glBindTexture(GL_TEXTURE_2D, bufferIds[1]);
 
   // 计算shader所需变量值
-  computeShaderData();
+  computeShaderData(posPlane, rotationPlane, scalePlane);
+
   // 修改shader变量
-  passDataToShader2(shaderProgram);
+  passPlaneDataToShader(shaderProgram, modelViewProjection, colorPlane);
   // 绘制平面
   plane.draw();
+
+  //scale = 0.1f;
+  //// 计算shader所需变量值
+  //computeShaderData(posTeapot, rotationTeapot, scaleTeapot);
+  //// 修改shader变量
+  //passDataToShader2(shaderProgram);
+  //// 绘制茶壶
+  //teapot.draw();
 }
 
 void ProjectShadowMapping::setClearBuffer1(GLuint frameBufferId, GLfloat* clearColor, GLfloat* clearDepth) {
@@ -378,8 +369,43 @@ void ProjectShadowMapping::computeShaderData() {
   glm::mat3 modelLight = glm::rotate(glm::mat4(1.0f), glm::radians(lightRotationSpeed), glm::vec3(1.0f, 0, -1.0f));
   glm::mat3 viewMatrix3 = viewMatrix;
 
-  glm::vec3 dirLightCompute = viewMatrix3 * modelLight * light.lightPosition;
-  dirLight = glm::normalize(dirLightCompute);
+  //glm::vec3 dirLightCompute = viewMatrix3 * modelLight * light.lightPosition;
+  //dirLight = glm::normalize(dirLightCompute);
+}
+
+void ProjectShadowMapping::computeShaderData(glm::vec3 pos, GLfloat rotation, GLfloat scale) {
+  // 计算mvp
+  glm::mat4 modelMatrix = glm::mat4(1.0f);
+
+  modelMatrix = glm::translate(modelMatrix, pos);
+
+  modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0, 1.0f, 0));
+
+  modelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
+
+  glm::mat4 viewMatrix = camMain.getViewMatrix();
+
+  glm::mat4 projectMatrix = glm::perspective(FOV, (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
+
+  modelView = viewMatrix * modelMatrix;
+  modelViewProjection = projectMatrix * viewMatrix * modelMatrix;
+}
+
+void ProjectShadowMapping::passPlaneDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color) {
+  // 查询并修改全局变量
+  ShaderProgramUtil programUtil(_shaderProgram);
+
+  // 修改mvp矩阵
+  bool resModifyMVP = programUtil.glModifyUniformMat44("v_u_mvp", _mvp);
+  if (!resModifyMVP) {
+    //exit(EXIT_FAILURE);
+  }
+  
+  // 修改颜色
+  bool resModifyColor = programUtil.glModifyUniformVec3("f_u_color", _color);
+  if (!resModifyColor) {
+    //exit(EXIT_FAILURE);
+  }
 }
 
 void ProjectShadowMapping::passDataToShader1(GLuint shaderProgram) {

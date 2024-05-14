@@ -221,6 +221,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\light\Light.cpp" />
     <ClCompile Include="src\project\shadow\ProjectShadowMapping.cpp" />
     <ClCompile Include="src\project\textures\ProjectTexture.cpp" />
     <ClCompile Include="src\project\shading\ProjectBlinnPhongShading.cpp" />
@@ -237,8 +238,10 @@
     <ClCompile Include="src\thirdparty\gl3w\gl3w.c" />
     <ClCompile Include="src\thirdparty\lodepng\lodepng.cpp" />
     <ClCompile Include="src\texture\Texture.cpp" />
+    <ClCompile Include="src\transform\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\light\Light.h" />
     <ClInclude Include="src\project\shadow\ProjectShadowMapping.h" />
     <ClInclude Include="src\project\textures\ProjectTexture.h" />
     <ClInclude Include="src\project\shading\ProjectBlinnPhongShading.h" />
@@ -257,6 +260,7 @@
     <ClInclude Include="src\shaderutil\ShaderUtil.h" />
     <ClInclude Include="src\texture\GLTextureManager.h" />
     <ClInclude Include="src\texture\Texture.h" />
+    <ClInclude Include="src\transform\Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
@@ -265,6 +269,8 @@
     <None Include="data\shaders\blinn_phong.frag" />
     <None Include="data\shaders\render_to_texture.frag" />
     <None Include="data\shaders\render_to_texture.vert" />
+    <None Include="data\shaders\shadow_map_render.frag" />
+    <None Include="data\shaders\shadow_map_render.vert" />
     <None Include="data\shaders\texture_map.frag" />
     <None Include="data\shaders\texture_map.vert" />
     <None Include="data\shaders\blinn_phong.vert" />

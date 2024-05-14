@@ -14,6 +14,7 @@
 // Program defined
 #include "../../model/Model.h"
 #include "../../camera/Camera.h"
+#include "../../light/Light.h"
 
 class ProjectShadowMapping {
 public:
@@ -38,6 +39,9 @@ private:
   void drawSecondPass();
   void setClearBuffer1(GLuint frameBufferId, GLfloat* clearColor, GLfloat* clearDepth);
   void computeShaderData();
+  void computeShaderData(glm::vec3 pos, GLfloat rotation, GLfloat scale);
+  void passPlaneDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color);
+  void passTeapotDataToShader();
   void passDataToShader1(GLuint shaderProgram);
   void cleanUp();
 
@@ -72,6 +76,7 @@ private:
   std::string pathCube = MODELS_DIR + nameCube;
 
   glm::vec3 colorPlane = glm::vec3(1.0f, 1.0f, 1.0f);
+  glm::vec3 colorTeapot = glm::vec3(1.0f, 0, 0);
 
   /* 透视投影 */
   GLfloat FOV = 45.0f;
@@ -83,20 +88,21 @@ private:
   GLfloat forward = 0;
   GLfloat scale = 0.1f;
 
+  /* 茶壶模型变换信息 */
+  glm::vec3 posTeapot = glm::vec3(0, 1.0f, 0);
+  GLfloat rotationTeapot = 0;
+  GLfloat scaleTeapot = 0.1f;
+
+  /* 平面模型变换信息 */
+  glm::vec3 posPlane = glm::vec3(0, 0, 0);
+  GLfloat rotationPlane = 0;
+  GLfloat scalePlane = 1.0f;
+  
   /* 相机 */
   Camera camMain;
 
-  /* 平行光Dirction light光照模型 */
-  struct DirectionLight {
-    glm::vec3 lightPosition;
-    glm::vec3 lightColor;
-  };
-
-  DirectionLight light = {
-    glm::vec3(1.0f, 1.0f, 1.0f),
-    glm::vec3(1.0f, 1.0f, 1.0f)
-  };
-
+  /* 聚光灯 */
+  SpotLight light;
 
   /* 图形管线 */
   GLuint shaderProgram;
@@ -104,12 +110,12 @@ private:
   /* shader文件地址 */
   std::string SHADER_DIR = "./data/shaders/";
 
-  std::string texture_map_vert_shader = "render_to_texture.vert";
-  std::string texture_map_frag_shader = "render_to_texture.frag";
+  std::string shadow_map_vert_shader = "shadow_map_render.vert";
+  std::string shadow_map_frag_shader = "shadow_map_render.frag";
 
   /* 当前使用的shader */
-  std::string pathVertShader = SHADER_DIR + texture_map_vert_shader;
-  std::string pathFragShader = SHADER_DIR + texture_map_frag_shader;
+  std::string pathVertShader = SHADER_DIR + shadow_map_vert_shader;
+  std::string pathFragShader = SHADER_DIR + shadow_map_frag_shader;
 
   /* 计算参数 */
   glm::mat4 modelView;
