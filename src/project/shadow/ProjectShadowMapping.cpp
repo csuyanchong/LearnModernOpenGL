@@ -134,7 +134,7 @@ void ProjectShadowMapping::createScene() {
   }
 
   // 相机
-  camMain.setEyePosition(glm::vec3(1, 2, 3));
+  camMain.setEyePosition(glm::vec3(0, 2, 3));
   camMain.setLookDirection(glm::vec3(0, 0, -1));
   camMain.setUpDirection(glm::vec3(0, 1.0f, 0));
 
@@ -305,32 +305,33 @@ void ProjectShadowMapping::passDataToShader2(GLuint shaderProgram) {
 void ProjectShadowMapping::drawSecondPass() {
   // 使用window帧缓冲区
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
   // 清除设置
   glClearColor(0, 0, 0, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
   //glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+\
   // 使用图形管线
   glUseProgram(shaderProgram);
-
-  // 平面模型缩放设置
-  scale = 1.0f;
 
   // 计算shader所需变量值
   computeShaderData(posPlane, rotationPlane, scalePlane);
 
   // 修改shader变量
   passPlaneDataToShader(shaderProgram, modelViewProjection, colorPlane);
+
   // 绘制平面
   plane.draw();
 
-  //scale = 0.1f;
-  //// 计算shader所需变量值
-  //computeShaderData(posTeapot, rotationTeapot, scaleTeapot);
-  //// 修改shader变量
-  //passDataToShader2(shaderProgram);
-  //// 绘制茶壶
-  //teapot.draw();
+  // 计算shader所需变量值
+  computeShaderData(posTeapot, rotationTeapot, scaleTeapot);
+
+  // 修改shader变量
+  passTeapotDataToShader(shaderProgram, modelViewProjection, colorTeapot);
+
+  // 绘制茶壶
+  teapot.draw();
 }
 
 void ProjectShadowMapping::setClearBuffer1(GLuint frameBufferId, GLfloat* clearColor, GLfloat* clearDepth) {
@@ -377,11 +378,12 @@ void ProjectShadowMapping::computeShaderData(glm::vec3 pos, GLfloat rotation, GL
   // 计算mvp
   glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-  modelMatrix = glm::translate(modelMatrix, pos);
-
   modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0, 1.0f, 0));
 
   modelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
+
+  modelMatrix = glm::translate(modelMatrix, pos);
+
 
   glm::mat4 viewMatrix = camMain.getViewMatrix();
 
@@ -401,6 +403,23 @@ void ProjectShadowMapping::passPlaneDataToShader(GLuint _shaderProgram, glm::mat
     //exit(EXIT_FAILURE);
   }
   
+  // 修改颜色
+  bool resModifyColor = programUtil.glModifyUniformVec3("f_u_color", _color);
+  if (!resModifyColor) {
+    //exit(EXIT_FAILURE);
+  }
+}
+
+void ProjectShadowMapping::passTeapotDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color) {
+  // 查询并修改全局变量
+  ShaderProgramUtil programUtil(_shaderProgram);
+
+  // 修改mvp矩阵
+  bool resModifyMVP = programUtil.glModifyUniformMat44("v_u_mvp", _mvp);
+  if (!resModifyMVP) {
+    //exit(EXIT_FAILURE);
+  }
+
   // 修改颜色
   bool resModifyColor = programUtil.glModifyUniformVec3("f_u_color", _color);
   if (!resModifyColor) {

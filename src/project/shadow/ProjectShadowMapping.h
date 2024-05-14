@@ -41,7 +41,7 @@ private:
   void computeShaderData();
   void computeShaderData(glm::vec3 pos, GLfloat rotation, GLfloat scale);
   void passPlaneDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color);
-  void passTeapotDataToShader();
+  void passTeapotDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color);
   void passDataToShader1(GLuint shaderProgram);
   void cleanUp();
 
@@ -75,7 +75,7 @@ private:
   std::string nameCube = "cube.obj";
   std::string pathCube = MODELS_DIR + nameCube;
 
-  glm::vec3 colorPlane = glm::vec3(1.0f, 1.0f, 1.0f);
+  glm::vec3 colorPlane = glm::vec3(0.5f, 0.5f, 0.5f);
   glm::vec3 colorTeapot = glm::vec3(1.0f, 0, 0);
 
   /* 透视投影 */
@@ -90,13 +90,13 @@ private:
 
   /* 茶壶模型变换信息 */
   glm::vec3 posTeapot = glm::vec3(0, 1.0f, 0);
-  GLfloat rotationTeapot = 0;
-  GLfloat scaleTeapot = 0.1f;
+  GLfloat rotationTeapot = 135;
+  GLfloat scaleTeapot = 0.06f;
 
   /* 平面模型变换信息 */
   glm::vec3 posPlane = glm::vec3(0, 0, 0);
   GLfloat rotationPlane = 0;
-  GLfloat scalePlane = 1.0f;
+  GLfloat scalePlane = 5.0f;
   
   /* 相机 */
   Camera camMain;
