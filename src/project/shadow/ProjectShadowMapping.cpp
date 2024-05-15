@@ -387,7 +387,7 @@ void ProjectShadowMapping::computeShaderData(glm::vec3 pos, GLfloat rotation, GL
 
   glm::mat4 viewMatrix = camMain.getViewMatrix();
 
-  glm::mat4 projectMatrix = glm::perspective(FOV, (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
+  glm::mat4 projectMatrix = glm::perspective(glm::radians(FOV), (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
 
   modelView = viewMatrix * modelMatrix;
   modelViewProjection = projectMatrix * viewMatrix * modelMatrix;
