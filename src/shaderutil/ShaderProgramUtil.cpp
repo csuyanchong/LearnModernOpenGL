@@ -3,7 +3,7 @@
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
 
-bool ShaderProgramUtil::glModifyUniformMat44(std::string id, glm::mat4 value) {
+bool ShaderProgramUtil::glModifyUniformMat44(const std::string& id, glm::mat4 value) {
   // 查询并修改全局变量
   GLint location = glGetUniformLocation(programPipeline, id.c_str());
   if (location != -1) {
@@ -14,7 +14,7 @@ bool ShaderProgramUtil::glModifyUniformMat44(std::string id, glm::mat4 value) {
   return false;
 }
 
-bool ShaderProgramUtil::glModifyUniformMat33(std::string id, glm::mat3 value) {
+bool ShaderProgramUtil::glModifyUniformMat33(const std::string& id, glm::mat3 value) {
   // 查询并修改全局变量
   GLint location = glGetUniformLocation(programPipeline, id.c_str());
   if (location != -1) {
@@ -25,7 +25,7 @@ bool ShaderProgramUtil::glModifyUniformMat33(std::string id, glm::mat3 value) {
   return false;
 }
 
-bool ShaderProgramUtil::glModifyUniformVec3(std::string id, glm::vec3 value) {
+bool ShaderProgramUtil::glModifyUniformVec3(const std::string& id, glm::vec3 value) {
   // 查询并修改全局变量
   GLint location = glGetUniformLocation(programPipeline, id.c_str());
   if (location != -1) {
@@ -36,7 +36,7 @@ bool ShaderProgramUtil::glModifyUniformVec3(std::string id, glm::vec3 value) {
   return false;
 }
 
-bool ShaderProgramUtil::glModifyUniformFloat(std::string id, GLfloat value) {
+bool ShaderProgramUtil::glModifyUniformFloat(const std::string& id, GLfloat value) {
   // 查询并修改全局变量
   GLint location = glGetUniformLocation(programPipeline, id.c_str());
   if (location != -1) {
@@ -47,7 +47,7 @@ bool ShaderProgramUtil::glModifyUniformFloat(std::string id, GLfloat value) {
   return false;
 }
 
-bool ShaderProgramUtil::glModifyUniformInt1(std::string id, GLint value) {
+bool ShaderProgramUtil::glModifyUniformInt1(const std::string& id, GLint value) {
   // 查询并修改全局变量
   GLint location = glGetUniformLocation(programPipeline, id.c_str());
   if (location != -1) {

@@ -11,11 +11,11 @@ class ShaderProgramUtil {
 public:
   ShaderProgramUtil(GLuint _programPipeline) :programPipeline(_programPipeline) {};
 
-  bool glModifyUniformMat44(std::string, glm::mat4);
-  bool glModifyUniformMat33(std::string, glm::mat3);
-  bool glModifyUniformVec3(std::string, glm::vec3);
-  bool glModifyUniformFloat(std::string, GLfloat);
-  bool glModifyUniformInt1(std::string, GLint);
+  bool glModifyUniformMat44(const std::string&, glm::mat4);
+  bool glModifyUniformMat33(const std::string&, glm::mat3);
+  bool glModifyUniformVec3(const std::string& g, glm::vec3);
+  bool glModifyUniformFloat(const std::string&, GLfloat);
+  bool glModifyUniformInt1(const std::string&, GLint);
 
 private:
   GLuint programPipeline;
