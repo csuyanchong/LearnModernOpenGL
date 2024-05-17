@@ -39,7 +39,10 @@ private:
   void drawSecondPass();
   void setClearBuffer1(GLuint frameBufferId, GLfloat* clearColor, GLfloat* clearDepth);
   void computeShaderData();
+  void computeLightData(glm::mat4 viewMat, const SpotLight& light);
   void computeShaderData(glm::vec3 pos, GLfloat rotation, GLfloat scale);
+  void passLightDataToShader(glm::mat4 modelViewMat, glm::vec3 toward, GLfloat angle);
+  void passModelDataToShader(glm::mat4 mvp, glm::mat4 mv, glm::mat3 mvNormal);
   void passPlaneDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color);
   void passTeapotDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color);
   void passDataToShader1(GLuint shaderProgram);

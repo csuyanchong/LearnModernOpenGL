@@ -315,7 +315,16 @@ void ProjectShadowMapping::drawSecondPass() {
   // 使用图形管线
   glUseProgram(shaderProgram);
 
-  // 计算shader所需变量值
+  // 计算相机参数
+  glm::mat4 viewMatrix = camMain.getViewMatrix();
+
+  // 计算投影矩阵
+  glm::mat4 projectMatrix = glm::perspective(glm::radians(FOV), (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
+
+  // 计算光源参数
+  computeLightData(viewMatrix, light);
+
+  // 计算平面参数
   computeShaderData(posPlane, rotationPlane, scalePlane);
 
   // 修改shader变量
@@ -374,6 +383,10 @@ void ProjectShadowMapping::computeShaderData() {
   //dirLight = glm::normalize(dirLightCompute);
 }
 
+void ProjectShadowMapping::computeLightData(glm::mat4 viewMat, const SpotLight& light) {
+  // TODO...
+}
+
 void ProjectShadowMapping::computeShaderData(glm::vec3 pos, GLfloat rotation, GLfloat scale) {
   // 计算mvp
   glm::mat4 modelMatrix = glm::mat4(1.0f);
@@ -391,6 +404,14 @@ void ProjectShadowMapping::computeShaderData(glm::vec3 pos, GLfloat rotation, GL
 
   modelView = viewMatrix * modelMatrix;
   modelViewProjection = projectMatrix * viewMatrix * modelMatrix;
+  // 法线在view空间的变换
+  modelViewForNormal = glm::transpose(glm::inverse(modelView));
+}
+
+void ProjectShadowMapping::passLightDataToShader(glm::mat4 modelViewMat, glm::vec3 toward, GLfloat angle) {
+}
+
+void ProjectShadowMapping::passModelDataToShader(glm::mat4 mvp, glm::mat4 mv, glm::mat3 mvNormal) {
 }
 
 void ProjectShadowMapping::passPlaneDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color) {
