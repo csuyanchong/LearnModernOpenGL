@@ -75,11 +75,7 @@ GLfloat forward = 0;
 GLfloat scale = 0.1f;
 
 /* Ö÷ÉãÏñ»ú */
-Camera camMain(
-  glm::vec3(1, 2, 3),
-  glm::vec3(0, 0, -1),
-  glm::vec3(0, 1.0f, 0)
-);
+Camera camMain{};
 
 GLfloat moveCamVerticalSpeed = 0.1f;
 GLfloat moveCamHorizenSpeed = 0.1f;
@@ -301,7 +297,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
-  if (key == GLFW_KEY_W) {
+  /*if (key == GLFW_KEY_W) {
     camMain.moveForward(moveCamVerticalSpeed);
   }
   if (key == GLFW_KEY_S) {
@@ -313,7 +309,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
   }
   if (key == GLFW_KEY_D) {
     camMain.moveRight(moveCamHorizenSpeed);
-  }
+  }*/
 
   if (key == GLFW_KEY_LEFT) {
     rotation -= 5.0f;

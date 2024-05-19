@@ -134,9 +134,8 @@ void ProjectRenderToTexture::createScene() {
   }
 
   // Па»ъ
-  camMain.setEyePosition(glm::vec3(1, 2, 3));
-  camMain.setLookDirection(glm::vec3(0, 0, -1));
-  camMain.setUpDirection(glm::vec3(0, 1.0f, 0));
+  camMain.transform.position = glm::vec3(1, 2, 3);
+  camMain.transform.euler = glm::vec3(glm::radians(40.0f), 0, 0);
 }
 
 void ProjectRenderToTexture::createRenderPipeline() {

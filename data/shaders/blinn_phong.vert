@@ -15,7 +15,7 @@ out vec2 v_out_texture_coord;
 void main() {
   // 顶点变换到View空间
   vec4 posView = u_mv * vec4(vPosition, 1.0f);
-  v_out_posView = normalize(vec3(posView));
+  v_out_posView = vec3(posView);
   // 法线变换到View空间
   v_out_normal = normalize(u_normal * vNormal);
   // 顶点投影位置

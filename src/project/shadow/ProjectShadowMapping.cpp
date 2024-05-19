@@ -56,10 +56,12 @@ void ProjectShadowMapping::keyCallback(GLFWwindow* window, int key, int scancode
    }*/
 
   if (key == GLFW_KEY_LEFT) {
-    rotation -= 5.0f;
+    rotationTeapot -= 5.0f;
+    teapotTransform.euler = glm::vec3(0, glm::radians(rotationTeapot), 0);
   }
   if (key == GLFW_KEY_RIGHT) {
-    rotation += 5.0f;
+    rotationTeapot += 5.0f;
+    teapotTransform.euler = glm::vec3(0, glm::radians(rotationTeapot), 0);
   }
   if (key == GLFW_KEY_UP) {
     forward += 0.1f;
@@ -82,9 +84,27 @@ void ProjectShadowMapping::keyCallback(GLFWwindow* window, int key, int scancode
 
   if (key == GLFW_KEY_Z) {
     lightRotationSpeed -= 1.0f;
+    directionLight.transform.euler = glm::vec3(0, glm::radians(lightRotationSpeed), 0);
   }
   if (key == GLFW_KEY_C) {
     lightRotationSpeed += 1.0f;
+    directionLight.transform.euler = glm::vec3(0, glm::radians(lightRotationSpeed), 0);
+  }
+}
+
+void ProjectShadowMapping::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+  //std::cout << "yoffset: " << yoffset << std::endl;
+  // yoffset: 1为上，-1为下
+  glm::vec3 dir = camMain.getLookDirection();
+  if (yoffset > 0) {
+    // 镜头拉近
+    glm::vec3 positionNew = camMain.transform.position + dir * cameraMoveSpeed;
+    camMain.transform.position = positionNew;
+  }
+  else {
+    // 镜头拉远
+    glm::vec3 positionNew = camMain.transform.position - dir * cameraMoveSpeed;
+    camMain.transform.position = positionNew;
   }
 }
 
@@ -132,16 +152,34 @@ void ProjectShadowMapping::createScene() {
     std::cout << "从路径" + pathCube + "加载模型失败！";
     exit(EXIT_FAILURE);
   }
+  
+  // 平面变换设置
+  planeTransrom.position = posPlane;
+  planeTransrom.euler = glm::vec3(0, 0, 0);
+  planeTransrom.scale = glm::vec3(scalePlane);
+
+  // 茶壶变换设置
+  teapotTransform.position = posTeapot;
+  teapotTransform.euler = glm::vec3(0, glm::radians(rotationTeapot), 0);
+  teapotTransform.scale = glm::vec3(scaleTeapot);
 
   // 相机
-  camMain.setEyePosition(glm::vec3(0, 2, 3));
+  camMain.transform.position = posCamera;
+  camMain.transform.euler = eulerCamera;
+  camMain.transform.scale = scaleCamera;
+ /* camMain.setEyePosition(glm::vec3(0, 2, 3));
   camMain.setLookDirection(glm::vec3(0, 0, -1));
-  camMain.setUpDirection(glm::vec3(0, 1.0f, 0));
+  camMain.setUpDirection(glm::vec3(0, 1, 0));*/
 
   // 灯光
-  light.position = glm::vec3(2.0f, 2.0f, 0);
-  light.toward = glm::vec3(-1.0f, -1.0f, 0);
-  light.angle = 90;
+  light.position = glm::vec3(2.0f, 2.0f, 2.0f);
+  light.lookPoint = glm::vec3(0, 0, 0);
+  light.angle = 60;
+
+  // 直射光
+  directionLight.transform.position = glm::vec3(0);
+  directionLight.transform.euler = glm::vec3(0, 0, 0);
+  directionLight.transform.scale = glm::vec3(1);
 }
 
 void ProjectShadowMapping::createRenderPipeline() {
@@ -161,12 +199,19 @@ void ProjectShadowMapping::createRenderPipeline() {
 }
 
 void ProjectShadowMapping::bindInput() {
-  auto callBackFun = [](GLFWwindow* window, int key, int code, int action, int mods) {
+  auto callBackFunKey = [](GLFWwindow* window, int key, int code, int action, int mods) {
     static_cast<ProjectShadowMapping*>(glfwGetWindowUserPointer(window))->keyCallback(window, key, code, action, mods);
     };
 
+  auto callBackFunScroll = [](GLFWwindow* window, double xoffset, double yoffset) {
+    static_cast<ProjectShadowMapping*>(glfwGetWindowUserPointer(window))->scrollCallback(window, xoffset, yoffset);
+    };
+
   // 键盘事件回调
-  glfwSetKeyCallback(window, callBackFun);
+  glfwSetKeyCallback(window, callBackFunKey);
+
+  // 鼠标滚轮事件回调
+  glfwSetScrollCallback(window, callBackFunScroll);
 }
 
 void ProjectShadowMapping::mainLoop() {
@@ -318,26 +363,35 @@ void ProjectShadowMapping::drawSecondPass() {
   // 计算相机参数
   glm::mat4 viewMatrix = camMain.getViewMatrix();
 
-  // 计算投影矩阵
+  // 计算投影矩阵, TODO... 透视封装到相机里
   glm::mat4 projectMatrix = glm::perspective(glm::radians(FOV), (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
 
-  // 计算光源参数
-  computeLightData(viewMatrix, light);
+  // 计算直射光光源参数
+  DirectionalLightShaderParam directionLightData = computeDirectionalLightShaderData(viewMatrix, directionLight);
 
-  // 计算平面参数
-  computeShaderData(posPlane, rotationPlane, scalePlane);
+  // 传递直射光光源参数
+  passLightDataToShaderProgram(shaderProgram, directionLightData);
 
-  // 修改shader变量
-  passPlaneDataToShader(shaderProgram, modelViewProjection, colorPlane);
+  //// 计算光源参数
+  //LightShaderParam lightData = computeLightShaderData(viewMatrix, light);
+
+  //// 传递光源参数
+  //passLightDataToShaderProgram(shaderProgram, lightData);
+
+  // 计算平面shader参数
+  ModelShaderParam planeData = computeModelShaderData(planeTransrom, viewMatrix, projectMatrix, colorPlane);
+
+  // 传递shader参数
+  passModelDataToShaderProgram(shaderProgram, planeData);
 
   // 绘制平面
   plane.draw();
 
   // 计算shader所需变量值
-  computeShaderData(posTeapot, rotationTeapot, scaleTeapot);
+  ModelShaderParam teapotData = computeModelShaderData(teapotTransform, viewMatrix, projectMatrix, colorTeapot);
 
-  // 修改shader变量
-  passTeapotDataToShader(shaderProgram, modelViewProjection, colorTeapot);
+  // 传递shader参数
+  passModelDataToShaderProgram(shaderProgram, teapotData);
 
   // 绘制茶壶
   teapot.draw();
@@ -383,8 +437,49 @@ void ProjectShadowMapping::computeShaderData() {
   //dirLight = glm::normalize(dirLightCompute);
 }
 
-void ProjectShadowMapping::computeLightData(glm::mat4 viewMat, const SpotLight& light) {
-  // TODO...
+DirectionalLightShaderParam ProjectShadowMapping::computeDirectionalLightShaderData(const glm::mat4 viewMat, const DirectionalLight& light) {
+  DirectionalLightShaderParam res;
+  glm::vec3 direction = light.getDirection();
+  glm::vec3 directionView = viewMat * glm::vec4(direction, 0);
+  res.direction = directionView;
+  return res;
+}
+
+LightShaderParam ProjectShadowMapping::computeLightShaderData(const glm::mat4 viewMat, const SpotLight& light) {
+  LightShaderParam res{};
+  
+  //light.
+  glm::mat4 modelMatrix = light.getMatrix();
+  glm::mat4 modelViewMatrix = viewMat * modelMatrix;
+  glm::vec3 lookDirViewSpace = (glm::mat3)modelViewMatrix * light.getLookDir();
+  glm::vec4 positionView = modelViewMatrix * glm::vec4(light.position, 1.0f);
+
+  res.angle = light.angle;
+  res.position = positionView;
+  res.toward = lookDirViewSpace;
+
+  return res;
+}
+
+ModelShaderParam ProjectShadowMapping::computeModelShaderData(const Transform& trans, const glm::mat4 viewMat, const glm::mat4 projectMat, const glm::vec3 materialColor) {
+  ModelShaderParam res{};
+
+  // 计算模型mvp
+  glm::mat4 modelMat = trans.getMatrix();
+  glm::mat4 mvp = projectMat * viewMat * modelMat;
+
+  // 计算模型mv
+  glm::mat4 mv = viewMat * modelMat;
+
+  // 计算法线mv
+  glm::mat3 mvNormal = glm::transpose(glm::inverse(mv));
+
+  res.color = materialColor;
+  res.mv = mv;
+  res.mvp = mvp;
+  res.mvNormal = mvNormal;
+
+  return res;
 }
 
 void ProjectShadowMapping::computeShaderData(glm::vec3 pos, GLfloat rotation, GLfloat scale) {
@@ -408,10 +503,67 @@ void ProjectShadowMapping::computeShaderData(glm::vec3 pos, GLfloat rotation, GL
   modelViewForNormal = glm::transpose(glm::inverse(modelView));
 }
 
-void ProjectShadowMapping::passLightDataToShader(glm::mat4 modelViewMat, glm::vec3 toward, GLfloat angle) {
+void ProjectShadowMapping::passLightDataToShaderProgram(GLuint shaderProgram, const DirectionalLightShaderParam& data) {
+  // 查询并修改全局变量
+  ShaderProgramUtil programUtil(shaderProgram);
+
+  bool res = programUtil.glModifyUniformInt1("f_u_light_type", 0);
+  if (!res) {
+    //exit(EXIT_FAILURE);
+  }
+
+  res = programUtil.glModifyUniformVec3("f_u_light_directional_direction", data.direction);
+  if (!res) {
+    //exit(EXIT_FAILURE);
+  }
 }
 
-void ProjectShadowMapping::passModelDataToShader(glm::mat4 mvp, glm::mat4 mv, glm::mat3 mvNormal) {
+void ProjectShadowMapping::passLightDataToShaderProgram(GLuint shaderProgram, const LightShaderParam& data) {
+  // 查询并修改全局变量
+  ShaderProgramUtil programUtil(shaderProgram);
+
+  // 修改mvp矩阵
+  bool res = programUtil.glModifyUniformVec3("f_u_light_position", data.position);
+  if (!res) {
+    //exit(EXIT_FAILURE);
+  }
+
+  res = programUtil.glModifyUniformVec3("f_u_light_toward", data.toward);
+  if (!res) {
+    //exit(EXIT_FAILURE);
+  }
+
+  res = programUtil.glModifyUniformFloat("f_u_light_angle", data.angle);
+  if (!res) {
+    //exit(EXIT_FAILURE);
+  }
+}
+
+void ProjectShadowMapping::passModelDataToShaderProgram(GLuint shaderProgram, const ModelShaderParam& data) {
+  // 查询并修改全局变量
+  ShaderProgramUtil programUtil(shaderProgram);
+
+  // 修改mvp矩阵
+  bool res = programUtil.glModifyUniformMat44("v_u_mvp", data.mvp);
+  if (!res) {
+    //exit(EXIT_FAILURE);
+  }
+
+  res = programUtil.glModifyUniformMat44("v_u_mv", data.mv);
+  if (!res) {
+    //exit(EXIT_FAILURE);
+  }
+
+  res = programUtil.glModifyUniformMat33("v_u_mv_normal", data.mvNormal);
+  if (!res) {
+    //exit(EXIT_FAILURE);
+  }
+
+  // 修改颜色
+  res = programUtil.glModifyUniformVec3("f_u_color", data.color);
+  if (!res) {
+    //exit(EXIT_FAILURE);
+  }
 }
 
 void ProjectShadowMapping::passPlaneDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color) {

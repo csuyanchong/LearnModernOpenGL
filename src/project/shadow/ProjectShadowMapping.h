@@ -10,11 +10,47 @@
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/mat3x3.hpp>
+#include <glm/trigonometric.hpp>
 
 // Program defined
 #include "../../model/Model.h"
 #include "../../camera/Camera.h"
 #include "../../light/Light.h"
+#include "../../transform/Transform.h"
+
+
+/// <summary>
+/// 灯光shader传入参数。
+/// </summary>
+class LightShaderParam {
+public:
+  glm::vec3 position;
+  glm::vec3 toward;
+  GLfloat angle;
+};
+
+class DirectionalLightShaderParam {
+public:
+  glm::vec3 direction;
+};
+
+class SpotLightShaderParam {
+public:
+  glm::vec3 position;
+  glm::vec3 toward;
+  GLfloat angle;
+};
+
+/// <summary>
+/// 模型shader传入参数。
+/// </summary>
+class ModelShaderParam {
+public:
+  glm::mat4 mvp;
+  glm::mat4 mv;
+  glm::mat3 mvNormal;
+  glm::vec3 color;
+};
 
 class ProjectShadowMapping {
 public:
@@ -22,6 +58,7 @@ public:
   ~ProjectShadowMapping();
   void run();
   void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+  void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
 private:
   void createWindow();
@@ -39,10 +76,13 @@ private:
   void drawSecondPass();
   void setClearBuffer1(GLuint frameBufferId, GLfloat* clearColor, GLfloat* clearDepth);
   void computeShaderData();
-  void computeLightData(glm::mat4 viewMat, const SpotLight& light);
-  void computeShaderData(glm::vec3 pos, GLfloat rotation, GLfloat scale);
-  void passLightDataToShader(glm::mat4 modelViewMat, glm::vec3 toward, GLfloat angle);
-  void passModelDataToShader(glm::mat4 mvp, glm::mat4 mv, glm::mat3 mvNormal);
+  DirectionalLightShaderParam computeDirectionalLightShaderData(const glm::mat4 viewMat, const DirectionalLight& light);
+  LightShaderParam computeLightShaderData(const glm::mat4 viewMat, const SpotLight& light);
+  ModelShaderParam computeModelShaderData(const Transform& trans, const glm::mat4 viewMat, const glm::mat4 projectMat, const glm::vec3 materialColor);
+  void computeShaderData(glm::vec3 pos, GLfloat rotation, GLfloat scale); 
+  void passLightDataToShaderProgram(GLuint shaderProgram, const DirectionalLightShaderParam& data);
+  void passLightDataToShaderProgram(GLuint shaderProgram, const LightShaderParam& data);
+  void passModelDataToShaderProgram(GLuint shaderProgram, const ModelShaderParam& data);
   void passPlaneDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color);
   void passTeapotDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color);
   void passDataToShader1(GLuint shaderProgram);
@@ -78,11 +118,11 @@ private:
   std::string nameCube = "cube.obj";
   std::string pathCube = MODELS_DIR + nameCube;
 
-  glm::vec3 colorPlane = glm::vec3(0.5f, 0.5f, 0.5f);
+  glm::vec3 colorPlane = glm::vec3(0.8f, 0.8f, 0.8f);
   glm::vec3 colorTeapot = glm::vec3(1.0f, 0, 0);
 
   /* 透视投影 */
-  GLfloat FOV = 45.0f;
+  GLfloat FOV = 60.0f;
   GLfloat NEAR_CLIP_PLANE = 0.1f;
   GLfloat FAR_CLIP_PLANE = 100.0f;
 
@@ -92,20 +132,30 @@ private:
   GLfloat scale = 0.1f;
 
   /* 茶壶模型变换信息 */
+  Transform teapotTransform;
   glm::vec3 posTeapot = glm::vec3(0, 1.0f, 0);
-  GLfloat rotationTeapot = 135;
-  GLfloat scaleTeapot = 0.06f;
+  GLfloat rotationTeapot = 170;
+  GLfloat scaleTeapot = 0.1f;
 
   /* 平面模型变换信息 */
+  Transform planeTransrom;
   glm::vec3 posPlane = glm::vec3(0, 0, 0);
   GLfloat rotationPlane = 0;
   GLfloat scalePlane = 5.0f;
   
+  /* 相机变换信息 */
+  glm::vec3 posCamera = glm::vec3(0, 2, 3);
+  glm::vec3 eulerCamera = glm::vec3(glm::radians(.0f), 0, 0);
+  glm::vec3 scaleCamera = glm::vec3(1.0f);
+
   /* 相机 */
   Camera camMain;
 
   /* 聚光灯 */
   SpotLight light;
+
+  /* 直射光*/
+  DirectionalLight directionLight;
 
   /* 图形管线 */
   GLuint shaderProgram;
@@ -129,6 +179,9 @@ private:
 
   /* 灯光旋转参数 */
   GLfloat lightRotationSpeed = 0;
+
+  /* 相机移动参数 */
+  GLfloat cameraMoveSpeed = 0.1f;
 
   /* 纹理id */
   GLuint textureId;
