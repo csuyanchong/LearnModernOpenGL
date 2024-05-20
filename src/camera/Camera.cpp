@@ -16,18 +16,19 @@
 glm::mat4 Camera::getViewMatrix() const {
   // 没有场景图，所有position是世界坐标。
   glm::vec3 eyePos = transform.position;
-  glm::vec3 lookDir = getLookDirection();
-  return glm::lookAt(eyePos, lookDir, up);
+  glm::vec3 lookDirection = getLookDirection();
+  glm::vec3 lookPoint = eyePos + lookDirection;
+  return glm::lookAt(eyePos, lookPoint, up);
 }
 
 glm::vec3 Camera::getLookDirection() const {
   glm::mat4 matrix = transform.getMatrix();
-  glm::vec3 fromNew = matrix * glm::vec4(from, 1.0);
-  glm::vec3 toNew = matrix * glm::vec4(to, 1.0);
+  glm::vec3 lookFromPointNew = matrix * glm::vec4(lookFromPoint, 1.0f);
+  glm::vec3 lookToPointNew = matrix * glm::vec4(lookToPoint, 1.0f);
 
-  glm::vec3 lookDir = toNew - fromNew;
-  lookDir = glm::normalize(lookDir);
-  return lookDir;
+  glm::vec3 lookDirection = lookToPointNew - lookFromPointNew;
+  lookDirection = glm::normalize(lookDirection);
+  return lookDirection;
 }
 
 //void Camera::setEyePosition(glm::vec3 _pos) {

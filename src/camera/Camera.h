@@ -8,7 +8,7 @@
 
 class Camera {
 public:
-  Camera() : up(glm::vec3(0, 1, 0)), from(glm::vec3(0)), to(glm::vec3(0, 0, -1)) {};
+  Camera() : up(glm::vec3(0, 1.0f, 0)), lookFromPoint(glm::vec3(0)), lookToPoint(glm::vec3(0, 0, -1.0f)) {};
   //Camera(glm::vec3 _pos, glm::vec3 _look, glm::vec3 _up);
 
   glm::mat4 getViewMatrix() const;
@@ -27,11 +27,12 @@ public:
   Transform transform;
 
 private:
-  //glm::vec3 eyePos;
-  //glm::vec3 lookDir;
+  /* 上方向 */
   glm::vec3 up;
-  glm::vec3 from;
-  glm::vec3 to;
+  /* 观察方向起点 */
+  glm::vec3 lookFromPoint;
+  /* 观察方向终点 */
+  glm::vec3 lookToPoint;
 };
 
 

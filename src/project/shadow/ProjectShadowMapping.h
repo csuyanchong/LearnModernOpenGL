@@ -77,11 +77,11 @@ private:
   void setClearBuffer1(GLuint frameBufferId, GLfloat* clearColor, GLfloat* clearDepth);
   void computeShaderData();
   DirectionalLightShaderParam computeDirectionalLightShaderData(const glm::mat4 viewMat, const DirectionalLight& light);
-  LightShaderParam computeLightShaderData(const glm::mat4 viewMat, const SpotLight& light);
+  SpotLightShaderParam computeLightShaderData(const glm::mat4 viewMat, const SpotLight& light);
   ModelShaderParam computeModelShaderData(const Transform& trans, const glm::mat4 viewMat, const glm::mat4 projectMat, const glm::vec3 materialColor);
   void computeShaderData(glm::vec3 pos, GLfloat rotation, GLfloat scale); 
   void passLightDataToShaderProgram(GLuint shaderProgram, const DirectionalLightShaderParam& data);
-  void passLightDataToShaderProgram(GLuint shaderProgram, const LightShaderParam& data);
+  void passLightDataToShaderProgram(GLuint shaderProgram, const SpotLightShaderParam& data);
   void passModelDataToShaderProgram(GLuint shaderProgram, const ModelShaderParam& data);
   void passPlaneDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color);
   void passTeapotDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color);
@@ -133,8 +133,8 @@ private:
 
   /* 茶壶模型变换信息 */
   Transform teapotTransform;
-  glm::vec3 posTeapot = glm::vec3(0, 1.0f, 0);
-  GLfloat rotationTeapot = 170;
+  glm::vec3 posTeapot = glm::vec3(0, 0, 0);
+  GLfloat rotationTeapot = 0;
   GLfloat scaleTeapot = 0.1f;
 
   /* 平面模型变换信息 */
@@ -144,15 +144,21 @@ private:
   GLfloat scalePlane = 5.0f;
   
   /* 相机变换信息 */
-  glm::vec3 posCamera = glm::vec3(0, 2, 3);
+  glm::vec3 posCamera = glm::vec3(0, 1, 3);
   glm::vec3 eulerCamera = glm::vec3(glm::radians(.0f), 0, 0);
   glm::vec3 scaleCamera = glm::vec3(1.0f);
+
+  /* 聚光灯变换信息 */
+  glm::vec3 posSpotLight = glm::vec3(3.0f, 3.0f, .0f);
+  glm::vec3 eulerSpotLight = glm::vec3(glm::radians(180.0f), glm::radians(-90.0f), glm::radians(45.0f));
+  glm::vec3 scaleSpotLight = glm::vec3(1.0f);
+  float angleSpotLight = 60.0f;
 
   /* 相机 */
   Camera camMain;
 
   /* 聚光灯 */
-  SpotLight light;
+  SpotLight spotLight;
 
   /* 直射光*/
   DirectionalLight directionLight;

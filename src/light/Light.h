@@ -24,21 +24,21 @@ private:
 
 class SpotLight : public Light {
 public:
-  SpotLight();
-  SpotLight(glm::vec3 _pos, glm::vec3 _lookPoint, float _angle) : 
-    position(_pos), 
-    lookPoint(_lookPoint),
-    angle(_angle) {};
+  SpotLight() : angle(60), lookFromPoint(glm::vec3(0)), lookToPoint(glm::vec3(0, 0, -1.0f)) {};
+  SpotLight(float _angle) : angle(_angle), lookFromPoint(glm::vec3(0)), lookToPoint(glm::vec3(0, 0, -1.0f)) {};
 
   glm::mat4 getMatrix() const;
   glm::vec3 getLookDir() const;
 
-  /* 光源位置 */
-  glm::vec3 position;
-  /* 光源朝向的点 */
-  glm::vec3 lookPoint;
+public:
   /* 张开角度 */
   float angle;
+
+private:
+  /* 观察方向起点 */
+  glm::vec3 lookFromPoint;
+  /* 观察方向终点 */
+  glm::vec3 lookToPoint;
 };
 
 #endif // !SRC_LIGHT_LIGHT_H_

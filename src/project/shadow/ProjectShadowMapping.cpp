@@ -94,7 +94,7 @@ void ProjectShadowMapping::keyCallback(GLFWwindow* window, int key, int scancode
 
 void ProjectShadowMapping::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
   //std::cout << "yoffset: " << yoffset << std::endl;
-  // yoffset: 1为上，-1为下
+  //yoffset: 1为上，-1为下
   glm::vec3 dir = camMain.getLookDirection();
   if (yoffset > 0) {
     // 镜头拉近
@@ -172,9 +172,10 @@ void ProjectShadowMapping::createScene() {
   camMain.setUpDirection(glm::vec3(0, 1, 0));*/
 
   // 灯光
-  light.position = glm::vec3(2.0f, 2.0f, 2.0f);
-  light.lookPoint = glm::vec3(0, 0, 0);
-  light.angle = 60;
+  spotLight.transform.position = posSpotLight;
+  spotLight.transform.euler = eulerSpotLight;
+  spotLight.transform.scale = scaleSpotLight;
+  spotLight.angle = angleSpotLight;
 
   // 直射光
   directionLight.transform.position = glm::vec3(0);
@@ -366,17 +367,17 @@ void ProjectShadowMapping::drawSecondPass() {
   // 计算投影矩阵, TODO... 透视封装到相机里
   glm::mat4 projectMatrix = glm::perspective(glm::radians(FOV), (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
 
-  // 计算直射光光源参数
-  DirectionalLightShaderParam directionLightData = computeDirectionalLightShaderData(viewMatrix, directionLight);
+  //// 计算直射光光源参数
+  //DirectionalLightShaderParam directionLightData = computeDirectionalLightShaderData(viewMatrix, directionLight);
 
-  // 传递直射光光源参数
-  passLightDataToShaderProgram(shaderProgram, directionLightData);
+  //// 传递直射光光源参数
+  //passLightDataToShaderProgram(shaderProgram, directionLightData);
 
-  //// 计算光源参数
-  //LightShaderParam lightData = computeLightShaderData(viewMatrix, light);
+  // 计算聚光灯光源参数
+  SpotLightShaderParam spotLightData = computeLightShaderData(viewMatrix, spotLight);
 
   //// 传递光源参数
-  //passLightDataToShaderProgram(shaderProgram, lightData);
+  passLightDataToShaderProgram(shaderProgram, spotLightData);
 
   // 计算平面shader参数
   ModelShaderParam planeData = computeModelShaderData(planeTransrom, viewMatrix, projectMatrix, colorPlane);
@@ -445,14 +446,14 @@ DirectionalLightShaderParam ProjectShadowMapping::computeDirectionalLightShaderD
   return res;
 }
 
-LightShaderParam ProjectShadowMapping::computeLightShaderData(const glm::mat4 viewMat, const SpotLight& light) {
-  LightShaderParam res{};
+SpotLightShaderParam ProjectShadowMapping::computeLightShaderData(const glm::mat4 viewMat, const SpotLight& light) {
+  SpotLightShaderParam res{};
   
   //light.
-  glm::mat4 modelMatrix = light.getMatrix();
+  glm::mat4 modelMatrix = light.transform.getMatrix();
   glm::mat4 modelViewMatrix = viewMat * modelMatrix;
-  glm::vec3 lookDirViewSpace = (glm::mat3)modelViewMatrix * light.getLookDir();
-  glm::vec4 positionView = modelViewMatrix * glm::vec4(light.position, 1.0f);
+  glm::vec3 lookDirViewSpace = viewMat * glm::vec4(light.getLookDir(), 0);
+  glm::vec4 positionView = modelViewMatrix * glm::vec4(0, 0, 0, 1.0f);
 
   res.angle = light.angle;
   res.position = positionView;
@@ -518,12 +519,17 @@ void ProjectShadowMapping::passLightDataToShaderProgram(GLuint shaderProgram, co
   }
 }
 
-void ProjectShadowMapping::passLightDataToShaderProgram(GLuint shaderProgram, const LightShaderParam& data) {
+void ProjectShadowMapping::passLightDataToShaderProgram(GLuint shaderProgram, const SpotLightShaderParam& data) {
   // 查询并修改全局变量
   ShaderProgramUtil programUtil(shaderProgram);
 
+  bool res = programUtil.glModifyUniformInt1("f_u_light_type", 1);
+  if (!res) {
+    //exit(EXIT_FAILURE);
+  }
+
   // 修改mvp矩阵
-  bool res = programUtil.glModifyUniformVec3("f_u_light_position", data.position);
+  res = programUtil.glModifyUniformVec3("f_u_light_position", data.position);
   if (!res) {
     //exit(EXIT_FAILURE);
   }
