@@ -224,12 +224,12 @@ void ProjectShadowMapping::mainLoop() {
 }
 
 void ProjectShadowMapping::draw() {
-  //drawFirstPass();
+  drawFirstPass();
   drawSecondPass();
 }
 
 void ProjectShadowMapping::drawFirstPass() {
-  // 渲染茶壶到framebuffer object
+  // 渲染深度信息贴图
   drawTarget(frameBufferId);
 }
 
@@ -238,16 +238,25 @@ void ProjectShadowMapping::createFrameBuffer() {
   glGenFramebuffers(1, &frameBufferId);
   glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
 
-  // 创建纹理对象
-  textureId = createTextureObject(textureWidth, textureHeight);
-  // 连接纹理到帧缓存
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
+  textureWidth = SCREEN_WIDTH;
+  textureHeight = SCREEN_HEIGHT;
 
-  //创建渲染缓存
-  GLuint renderBufferId;
-  renderBufferId = createRenderBufferObject(textureWidth, textureHeight, GL_DEPTH_COMPONENT);
-  // 连接渲染缓存到帧缓存
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferId);
+  // 创建深度纹理
+  textureId = createDepthTexture(textureWidth, textureHeight);
+
+  // 配置
+  glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textureId, 0);
+
+  //// 创建纹理对象
+  //textureId = createTextureObject(textureWidth, textureHeight);
+  //// 连接纹理到帧缓存
+  //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
+
+  ////创建渲染缓存
+  //GLuint renderBufferId;
+  //renderBufferId = createRenderBufferObject(textureWidth, textureHeight, GL_DEPTH_COMPONENT);
+  //// 连接渲染缓存到帧缓存
+  //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferId);
 
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE) {
@@ -255,6 +264,25 @@ void ProjectShadowMapping::createFrameBuffer() {
     std::cout << "FRAMEBUFFER FAILURE!" << std::endl;
     exit(EXIT_FAILURE);
   }
+}
+
+GLuint ProjectShadowMapping::createDepthTexture(GLuint width, GLuint height) {
+  GLuint textureId;
+  glGenTextures(1, &textureId);
+  glBindTexture(GL_TEXTURE_2D, textureId);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0,
+    GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
+
+  // 设置参数
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  //glGenerateMipmap(GL_TEXTURE_2D);
+  return textureId;
 }
 
 GLuint ProjectShadowMapping::createTextureObject(GLuint width, GLuint height) {
@@ -288,16 +316,15 @@ void ProjectShadowMapping::drawTarget(GLuint frameBufferId) {
   // 使用帧缓冲区
   glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
   // 清除设置
-  glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  //glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
+  glClear(GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
   //glViewport(0, 0, textureWidth, textureHeight);
   //setClearBuffer1(frameBufferId, CLEAR_COLOR_GREY, &CLEAR_DEPTH);
-  // 使用图形管线
+  
+  // TODO...使用一个简单的shader程序
   glUseProgram(shaderProgram);
 
-  // 茶壶模型缩放设置
-  scale = 0.1f;
   // 分配纹理采样单元
   //auto textureMgr = teapot.textureManager;
   //auto bufferIds = textureMgr.getTextureBuffers();
@@ -308,24 +335,20 @@ void ProjectShadowMapping::drawTarget(GLuint frameBufferId) {
   //  sampleUnit_1++;
   //}
 
-  GLTextureManager& textureMgr = teapot.textureManager;
-  std::vector<GLuint> bufferIds = textureMgr.getTextureBuffers();
+ /* GLTextureManager& textureMgr = teapot.textureManager;
+  std::vector<GLuint> bufferIds = textureMgr.getTextureBuffers();*/
 
-  glActiveTexture((GLenum)(GL_TEXTURE0));
-  glBindTexture(GL_TEXTURE_2D, bufferIds[0]);
+  //glActiveTexture((GLenum)(GL_TEXTURE0));
+  //glBindTexture(GL_TEXTURE_2D, bufferIds[0]);
 
   //glActiveTexture((GLenum)(GL_TEXTURE1));
   //glBindTexture(GL_TEXTURE_2D, bufferIds[1]);
 
-  //glActiveTexture((GLenum)(GL_TEXTURE2));
-  //glBindTexture(GL_TEXTURE_2D, textureId);
+  glActiveTexture((GLenum)(GL_TEXTURE0));
+  glBindTexture(GL_TEXTURE_2D, textureId);
 
-  // 计算shader所需变量值
-  computeShaderData();
-  // 修改shader变量
-  passDataToShader1(shaderProgram);
-  // 绘制茶壶
-  teapot.draw();
+  // TODO... 将相机移动到光源位置，绘制场景。
+
 }
 
 void ProjectShadowMapping::passDataToShader2(GLuint shaderProgram) {

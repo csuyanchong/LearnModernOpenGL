@@ -69,6 +69,7 @@ private:
   void draw();
   void drawFirstPass();
   void createFrameBuffer();
+  GLuint createDepthTexture(GLuint width, GLuint height);
   GLuint createTextureObject(GLuint width, GLuint height);
   GLuint createRenderBufferObject(GLuint width, GLuint height, GLenum type);
   void drawTarget(GLuint frameBufferId);
