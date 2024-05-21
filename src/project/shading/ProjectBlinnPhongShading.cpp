@@ -88,8 +88,8 @@ void ProjectBlinnPhongShading::createGraphicPipeline() {
 }
 
 void ProjectBlinnPhongShading::setCamera() {
-  camMain.transform.position = glm::vec3(1, 2, 3);
-  camMain.transform.euler = glm::vec3(glm::radians(40.0f), 0, 0);
+  camMain.transform.position = glm::vec3(0, 1, 4);
+  camMain.transform.euler = glm::vec3(0, 0, 0);
 
   //camMain.setEyePosition(glm::vec3(1, 2, 3));
   //camMain.setLookDirection(glm::vec3(0, 0, -1));

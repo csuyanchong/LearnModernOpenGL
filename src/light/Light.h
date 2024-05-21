@@ -29,12 +29,14 @@ public:
 
   glm::mat4 getMatrix() const;
   glm::vec3 getLookDir() const;
+  float getAngleRadians() const;
+  float getAngleDegree() const;
 
-public:
-  /* 张开角度 */
-  float angle;
+  void setAngleDegree(float value);
 
 private:
+  /* 张开角度 */
+  float angle;
   /* 观察方向起点 */
   glm::vec3 lookFromPoint;
   /* 观察方向终点 */

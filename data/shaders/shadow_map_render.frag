@@ -31,6 +31,15 @@ float intensityDiffuse = 0.55f;
 float intensitySpecular = 0.8f;
 float intensityAmbient =  0.25f;
 
+bool isLightInSpotAngle(vec3 dirLight, vec3 toward, float angle) {
+  bool res = false;
+  float angleDirection = acos(dot(-dirLight, toward));
+  if (angleDirection * 2 < angle) { //TODO...精度处理
+    res = true;
+  }
+  return res;
+}
+
 vec3 computeDiffuse(vec3 _kd, float _cosTheta, float _intensity) {
   vec3 res = _kd * max(0, _cosTheta)  * _intensity;
   return res;
@@ -77,13 +86,23 @@ vec3 blinnPhongShading() {
   vec3 colorSpecular = vec3(0);
   vec3 colorAmbient = vec3(0);
 
-  // 判断是否超出聚光灯灯光角度
-  bool isInSpotAngle = true;
-  if (isInSpotAngle) {
+  if (f_u_light_type == 0) {
+    // direction light
+	 // 1.漫反射
+    colorDiffuse = computeDiffuse(u_kd, cosinTheta, intensityDiffuse);
+    // 2.高光
+    colorSpecular = computeSpecular(u_ks, cosinTheta, cosinPhai, u_alpha, intensitySpecular);
+  }
+  else if (f_u_light_type == 1) {
+    // spot light
+    // 判断是否超出聚光灯灯光角度
+	bool isInSpotAngle = isLightInSpotAngle(dirLight, f_u_light_toward, f_u_light_angle);
+	if (isInSpotAngle) {
     // 1.漫反射
     colorDiffuse = computeDiffuse(u_kd, cosinTheta, intensityDiffuse);
     // 2.高光
     colorSpecular = computeSpecular(u_ks, cosinTheta, cosinPhai, u_alpha, intensitySpecular);
+	}
   }
  
   // 3.环境光
@@ -94,6 +113,7 @@ vec3 blinnPhongShading() {
 }
 
 void main() {
+  // Blinn-phong shading
   vec3 finalColor = blinnPhongShading();
   f_out_color = vec4(finalColor, 1.0f);
 }

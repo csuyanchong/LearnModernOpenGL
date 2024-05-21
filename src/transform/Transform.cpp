@@ -14,6 +14,8 @@ Transform::Transform() {
 
 glm::mat4 Transform::getMatrix() const
 {
+  /*glm::eulerAngleYXZ(euler.y, euler.x, euler.z);
+  
   glm::mat4 modelMatrix = glm::mat4(1.0f);
   modelMatrix = glm::translate(modelMatrix, position);
 
@@ -21,12 +23,15 @@ glm::mat4 Transform::getMatrix() const
   modelMatrix = glm::rotate(modelMatrix, glm::radians(euler.y), glm::vec3(0, 1, 0));
   modelMatrix = glm::rotate(modelMatrix, glm::radians(euler.x), glm::vec3(1, 0, 0));
 
-  modelMatrix = glm::scale(modelMatrix, scale);
-  //glm::mat4 rotationMatrix = glm::eulerAngleXYZ(euler.x, euler.y, euler.z);
+  modelMatrix = glm::scale(modelMatrix, scale);*/
 
-  //glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
+  glm::mat4 translateMatrix = glm::translate(glm::mat4(1.0f), position);
+
+  glm::mat4 rotationMatrix = glm::eulerAngleYXZ(glm::radians(euler.y), glm::radians(euler.x), glm::radians(euler.z));
+
+  glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
  
-  //glm::mat4 modelMatrix = scaleMatrix * rotationMatrix * translateMatrix;
+  glm::mat4 modelMatrix = translateMatrix * rotationMatrix * scaleMatrix;
 
   return modelMatrix;
 }

@@ -144,15 +144,15 @@ private:
   GLfloat scalePlane = 5.0f;
   
   /* 相机变换信息 */
-  glm::vec3 posCamera = glm::vec3(0, 1, 3);
-  glm::vec3 eulerCamera = glm::vec3(glm::radians(.0f), 0, 0);
+  glm::vec3 posCamera = glm::vec3(0, 2, 3.8f);
+  glm::vec3 eulerCamera = glm::vec3(-15, 0, 0);
   glm::vec3 scaleCamera = glm::vec3(1.0f);
 
   /* 聚光灯变换信息 */
-  glm::vec3 posSpotLight = glm::vec3(3.0f, 3.0f, .0f);
-  glm::vec3 eulerSpotLight = glm::vec3(glm::radians(180.0f), glm::radians(-90.0f), glm::radians(45.0f));
+  glm::vec3 posSpotLight = glm::vec3(0, 3, 0);
+  glm::vec3 eulerSpotLight = glm::vec3(-90, 0, 0);
   glm::vec3 scaleSpotLight = glm::vec3(1.0f);
-  float angleSpotLight = 60.0f;
+  float angleSpotLight = 90.0f;
 
   /* 相机 */
   Camera camMain;

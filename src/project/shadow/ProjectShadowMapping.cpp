@@ -57,11 +57,11 @@ void ProjectShadowMapping::keyCallback(GLFWwindow* window, int key, int scancode
 
   if (key == GLFW_KEY_LEFT) {
     rotationTeapot -= 5.0f;
-    teapotTransform.euler = glm::vec3(0, glm::radians(rotationTeapot), 0);
+    teapotTransform.euler = glm::vec3(0, rotationTeapot, 0);
   }
   if (key == GLFW_KEY_RIGHT) {
     rotationTeapot += 5.0f;
-    teapotTransform.euler = glm::vec3(0, glm::radians(rotationTeapot), 0);
+    teapotTransform.euler = glm::vec3(0, rotationTeapot, 0);
   }
   if (key == GLFW_KEY_UP) {
     forward += 0.1f;
@@ -84,11 +84,11 @@ void ProjectShadowMapping::keyCallback(GLFWwindow* window, int key, int scancode
 
   if (key == GLFW_KEY_Z) {
     lightRotationSpeed -= 1.0f;
-    directionLight.transform.euler = glm::vec3(0, glm::radians(lightRotationSpeed), 0);
+    directionLight.transform.euler = glm::vec3(0, lightRotationSpeed, 0);
   }
   if (key == GLFW_KEY_C) {
     lightRotationSpeed += 1.0f;
-    directionLight.transform.euler = glm::vec3(0, glm::radians(lightRotationSpeed), 0);
+    directionLight.transform.euler = glm::vec3(0, lightRotationSpeed, 0);
   }
 }
 
@@ -160,7 +160,7 @@ void ProjectShadowMapping::createScene() {
 
   // 茶壶变换设置
   teapotTransform.position = posTeapot;
-  teapotTransform.euler = glm::vec3(0, glm::radians(rotationTeapot), 0);
+  teapotTransform.euler = glm::vec3(0, rotationTeapot, 0);
   teapotTransform.scale = glm::vec3(scaleTeapot);
 
   // 相机
@@ -175,7 +175,7 @@ void ProjectShadowMapping::createScene() {
   spotLight.transform.position = posSpotLight;
   spotLight.transform.euler = eulerSpotLight;
   spotLight.transform.scale = scaleSpotLight;
-  spotLight.angle = angleSpotLight;
+  spotLight.setAngleDegree(angleSpotLight);
 
   // 直射光
   directionLight.transform.position = glm::vec3(0);
@@ -376,7 +376,7 @@ void ProjectShadowMapping::drawSecondPass() {
   // 计算聚光灯光源参数
   SpotLightShaderParam spotLightData = computeLightShaderData(viewMatrix, spotLight);
 
-  //// 传递光源参数
+  // 传递光源参数
   passLightDataToShaderProgram(shaderProgram, spotLightData);
 
   // 计算平面shader参数
@@ -455,9 +455,10 @@ SpotLightShaderParam ProjectShadowMapping::computeLightShaderData(const glm::mat
   glm::vec3 lookDirViewSpace = viewMat * glm::vec4(light.getLookDir(), 0);
   glm::vec4 positionView = modelViewMatrix * glm::vec4(0, 0, 0, 1.0f);
 
-  res.angle = light.angle;
+  // OpenGL用到的角度都是弧度
+  res.angle = light.getAngleRadians();
   res.position = positionView;
-  res.toward = lookDirViewSpace;
+  res.toward = glm::normalize(lookDirViewSpace);
 
   return res;
 }

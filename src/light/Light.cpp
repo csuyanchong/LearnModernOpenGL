@@ -19,6 +19,18 @@ glm::vec3 SpotLight::getLookDir() const {
   return lookDirection;
 }
 
+float SpotLight::getAngleRadians() const {
+  return glm::radians(angle);
+}
+
+float SpotLight::getAngleDegree() const {
+  return angle;
+}
+
+void SpotLight::setAngleDegree(float value) {
+  angle = value;
+}
+
 glm::vec3 DirectionalLight::getDirection() const
 {
   glm::mat4 matrix = transform.getMatrix();
