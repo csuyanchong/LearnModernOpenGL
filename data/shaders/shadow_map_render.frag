@@ -16,8 +16,14 @@ uniform vec3 f_u_light_position;
 uniform vec3 f_u_light_toward;
 uniform float f_u_light_angle;
 
+// shadow 纹理采样单元
+uniform sampler2D f_u_sample_shadow;
+
 in vec3 v_out_position_view;
 in vec3 v_out_normal_view;
+
+// 在光源视图下的位置坐标
+in vec4 v_out_position_light;
 
 // 材质参数
 vec3 u_ka = f_u_color;
@@ -86,14 +92,22 @@ vec3 blinnPhongShading() {
   vec3 colorSpecular = vec3(0);
   vec3 colorAmbient = vec3(0);
 
-  if (f_u_light_type == 0) {
+  // 阴影计算
+  bool isInShadow = false;
+  vec3 positionInLight = v_out_position_light.xyz / v_out_position_light.w;
+  if (texture(f_u_sample_shadow, positionInLight.xy).r < positionInLight.z) {
+    // 在阴影中
+	isInShadow = true;
+  }
+  
+  if (f_u_light_type == 0 && !isInShadow) {
     // direction light
 	 // 1.漫反射
     colorDiffuse = computeDiffuse(u_kd, cosinTheta, intensityDiffuse);
     // 2.高光
     colorSpecular = computeSpecular(u_ks, cosinTheta, cosinPhai, u_alpha, intensitySpecular);
   }
-  else if (f_u_light_type == 1) {
+  else if (f_u_light_type == 1 && !isInShadow) {
     // spot light
     // 判断是否超出聚光灯灯光角度
 	bool isInSpotAngle = isLightInSpotAngle(dirLight, f_u_light_toward, f_u_light_angle);

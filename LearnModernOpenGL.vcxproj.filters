@@ -63,6 +63,12 @@
     <ClCompile Include="src\project\shadow\ProjectShadowMapping.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\light\Light.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\transform\Transform.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\GLFW\glfw3.h">
@@ -119,6 +125,15 @@
     <ClInclude Include="src\project\shadow\ProjectShadowMapping.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\light\Light.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\transform\Transform.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\shader\ShaderParam.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.md" />
@@ -136,5 +151,9 @@
     <None Include="data\shaders\texture_map.frag" />
     <None Include="data\shaders\render_to_texture.vert" />
     <None Include="data\shaders\render_to_texture.frag" />
+    <None Include="data\shaders\shadow_map_render.frag" />
+    <None Include="data\shaders\shadow_map_render.vert" />
+    <None Include="data\shaders\simple.frag" />
+    <None Include="data\shaders\simple.vert" />
   </ItemGroup>
 </Project>

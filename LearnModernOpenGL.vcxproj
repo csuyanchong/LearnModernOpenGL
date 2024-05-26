@@ -258,6 +258,7 @@
     <ClInclude Include="include\GLFW\glfw3native.h" />
     <ClInclude Include="src\mesh\Mesh.h" />
     <ClInclude Include="src\shaderutil\ShaderUtil.h" />
+    <ClInclude Include="src\shader\ShaderParam.h" />
     <ClInclude Include="src\texture\GLTextureManager.h" />
     <ClInclude Include="src\texture\Texture.h" />
     <ClInclude Include="src\transform\Transform.h" />
@@ -271,6 +272,8 @@
     <None Include="data\shaders\render_to_texture.vert" />
     <None Include="data\shaders\shadow_map_render.frag" />
     <None Include="data\shaders\shadow_map_render.vert" />
+    <None Include="data\shaders\simple.frag" />
+    <None Include="data\shaders\simple.vert" />
     <None Include="data\shaders\texture_map.frag" />
     <None Include="data\shaders\texture_map.vert" />
     <None Include="data\shaders\blinn_phong.vert" />

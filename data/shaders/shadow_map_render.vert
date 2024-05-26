@@ -10,8 +10,14 @@ uniform mat4 v_u_mv;
 // 法线model * view
 uniform mat3 v_u_mv_normal;
 
+// 光源model * view
+uniform mat4 v_u_mv_light;
+
 out vec3 v_out_position_view;
 out vec3 v_out_normal_view;
+
+// 在光源视图下的位置坐标
+out vec4 v_out_position_light;
 
 void main() {
   vec4 vInPos = vec4(v_in_position, 1.0f);
@@ -24,4 +30,6 @@ void main() {
 
   v_out_normal_view = v_u_mv_normal * v_in_normal;
   v_out_normal_view = normalize(v_out_normal_view);
+
+  v_out_position_light = v_u_mv_light * vInPos;
 }

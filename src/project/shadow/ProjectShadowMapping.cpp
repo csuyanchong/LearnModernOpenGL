@@ -108,6 +108,23 @@ void ProjectShadowMapping::scrollCallback(GLFWwindow* window, double xoffset, do
   }
 }
 
+GLuint ProjectShadowMapping::createShaderProgram(const std::string& pathVert, const std::string& pathFrag) {
+  std::vector<ShaderInfo> shaders;
+  ShaderInfo vertInfo = {
+    GL_VERTEX_SHADER, pathVert
+  };
+
+  ShaderInfo fragInfo = {
+    GL_FRAGMENT_SHADER, pathFrag
+  };
+
+  shaders.push_back(vertInfo);
+  shaders.push_back(fragInfo);
+
+  GLuint shaderProgram = loadShader(shaders);
+  return shaderProgram;
+}
+
 void ProjectShadowMapping::createWindow() {
   // 初始化glfw
   if (glfwInit() == GLFW_FALSE) {
@@ -184,20 +201,28 @@ void ProjectShadowMapping::createScene() {
 }
 
 void ProjectShadowMapping::createRenderPipeline() {
-  std::vector<ShaderInfo> shaders;
-  ShaderInfo vertInfo = {
-    GL_VERTEX_SHADER, pathVertShader
-  };
+  shaderSimpleProgram = createShaderProgram(pathSimpleVertShader, pathSimpleFragShader);
 
-  ShaderInfo fragInfo = {
-    GL_FRAGMENT_SHADER, pathFragShader
-  };
+  shaderProgram = createShaderProgram(pathVertShader, pathFragShader);
 
-  shaders.push_back(vertInfo);
-  shaders.push_back(fragInfo);
-
-  shaderProgram = loadShader(shaders);
 }
+
+//GLuint ProjectShadowMapping::createShaderProgram(const std::string& pathVert, const std::string& pathFrag) {
+//  std::vector<ShaderInfo> shaders;
+//  ShaderInfo vertInfo = {
+//    GL_VERTEX_SHADER, pathVert
+//  };
+//
+//  ShaderInfo fragInfo = {
+//    GL_FRAGMENT_SHADER, pathFrag
+//  };
+//
+//  shaders.push_back(vertInfo);
+//  shaders.push_back(fragInfo);
+//
+//  GLuint shaderProgram = loadShader(shaders);
+//  return shaderProgram;
+//}
 
 void ProjectShadowMapping::bindInput() {
   auto callBackFunKey = [](GLFWwindow* window, int key, int code, int action, int mods) {
@@ -224,13 +249,60 @@ void ProjectShadowMapping::mainLoop() {
 }
 
 void ProjectShadowMapping::draw() {
-  drawFirstPass();
-  drawSecondPass();
+  // 保存相机参数
+  Transform camTransform(camMain.transform);
+  // 渲染深度信息贴图
+  CameraInLightParam param = drawFirstPass();
+  // 使用深度信息贴图
+  drawSecondPass(param, camTransform);
 }
 
-void ProjectShadowMapping::drawFirstPass() {
-  // 渲染深度信息贴图
-  drawTarget(frameBufferId);
+CameraInLightParam ProjectShadowMapping::drawFirstPass() {
+  CameraInLightParam res{};
+  // 使用帧缓冲区
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
+  // 清除设置
+  //glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
+  glClear(GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);
+  //glViewport(0, 0, textureWidth, textureHeight);
+  //setClearBuffer1(frameBufferId, CLEAR_COLOR_GREY, &CLEAR_DEPTH);
+
+  // 使用一个简单的shader程序
+  glUseProgram(shaderSimpleProgram);
+
+  // 分配纹理采样单元
+  glActiveTexture((GLenum)(GL_TEXTURE0 + shadowTextureUnit));
+  glBindTexture(GL_TEXTURE_2D, textureId);
+  //glBindTextureUnit(0, textureId); // GL4.5语法
+
+  // 将相机移动到光源位置，绘制场景
+  camMain.transform.position = spotLight.transform.position;
+  camMain.transform.euler = spotLight.transform.euler;
+  camMain.transform.scale = spotLight.transform.scale;
+
+  // 计算相机参数
+  glm::mat4 viewMatrix = camMain.getViewMatrix();
+
+  // 计算投影矩阵, TODO... 透视封装到相机里
+  glm::mat4 projectMatrix = glm::perspective(glm::radians(angleSpotLight), (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
+
+  //// 计算shader所需参数
+  //SimpleShaderParam planeData = computeModelShaderData(planeTransrom, viewMatrix, projectMatrix);
+  //// 传递参数到shader
+  //passModelDataToShaderProgram(shaderSimpleProgram, planeData);
+  //// 绘制平面
+  //plane.draw();
+
+  // 绘制茶壶
+  SimpleShaderParam teapotData = computeModelShaderData(teapotTransform, viewMatrix, projectMatrix);
+  passModelDataToShaderProgram(shaderSimpleProgram, teapotData);
+  teapot.draw();
+
+  // 返回相关数据，供接下来使用
+  res.viewMat = viewMatrix;
+  res.projMat = projectMatrix;
+  return res;
 }
 
 void ProjectShadowMapping::createFrameBuffer() {
@@ -312,66 +384,7 @@ GLuint ProjectShadowMapping::createRenderBufferObject(GLuint width, GLuint heigh
   return renderBufferId;
 }
 
-void ProjectShadowMapping::drawTarget(GLuint frameBufferId) {
-  // 使用帧缓冲区
-  glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
-  // 清除设置
-  //glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
-  glClear(GL_DEPTH_BUFFER_BIT);
-  glEnable(GL_DEPTH_TEST);
-  //glViewport(0, 0, textureWidth, textureHeight);
-  //setClearBuffer1(frameBufferId, CLEAR_COLOR_GREY, &CLEAR_DEPTH);
-  
-  // TODO...使用一个简单的shader程序
-  glUseProgram(shaderProgram);
-
-  // 分配纹理采样单元
-  //auto textureMgr = teapot.textureManager;
-  //auto bufferIds = textureMgr.getTextureBuffers();
-  //for (size_t i = 0; i < bufferIds.size(); i++) {
-  //  GLuint textureId = bufferIds[i];
-  //  glActiveTexture((GLenum)(GL_TEXTURE0 + i + sampleUnit_1));
-  //  glBindTexture(GL_TEXTURE_2D, textureId);
-  //  sampleUnit_1++;
-  //}
-
- /* GLTextureManager& textureMgr = teapot.textureManager;
-  std::vector<GLuint> bufferIds = textureMgr.getTextureBuffers();*/
-
-  //glActiveTexture((GLenum)(GL_TEXTURE0));
-  //glBindTexture(GL_TEXTURE_2D, bufferIds[0]);
-
-  //glActiveTexture((GLenum)(GL_TEXTURE1));
-  //glBindTexture(GL_TEXTURE_2D, bufferIds[1]);
-
-  glActiveTexture((GLenum)(GL_TEXTURE0));
-  glBindTexture(GL_TEXTURE_2D, textureId);
-
-  // TODO... 将相机移动到光源位置，绘制场景。
-
-}
-
-void ProjectShadowMapping::passDataToShader2(GLuint shaderProgram) {
-  // 查询并修改全局变量
-  ShaderProgramUtil programUtil(shaderProgram);
-
-  bool resModifyMVP = programUtil.glModifyUniformMat44("v_u_mvp", modelViewProjection);
-  if (!resModifyMVP) {
-    //exit(EXIT_FAILURE);
-  }
-
-  bool resModifySample2d_0 = programUtil.glModifyUniformInt1("f_u_sample2d_diffuse", 2);
-  if (!resModifySample2d_0) {
-    //exit(EXIT_FAILURE);
-  }
-
-  //bool resModifySample2d_1 = programUtil.glModifyUniformInt1("f_u_sample2d_specular", 3);
-  //if (!resModifySample2d_1) {
-  //  //exit(EXIT_FAILURE);
-  //}
-}
-
-void ProjectShadowMapping::drawSecondPass() {
+void ProjectShadowMapping::drawSecondPass(const CameraInLightParam& param,const Transform& camTransform) {
   // 使用window帧缓冲区
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -383,6 +396,9 @@ void ProjectShadowMapping::drawSecondPass() {
 \
   // 使用图形管线
   glUseProgram(shaderProgram);
+
+  // 相机恢复默认位置
+  camMain.transform = camTransform;
 
   // 计算相机参数
   glm::mat4 viewMatrix = camMain.getViewMatrix();
@@ -403,7 +419,7 @@ void ProjectShadowMapping::drawSecondPass() {
   passLightDataToShaderProgram(shaderProgram, spotLightData);
 
   // 计算平面shader参数
-  ModelShaderParam planeData = computeModelShaderData(planeTransrom, viewMatrix, projectMatrix, colorPlane);
+  ModelShaderParam planeData = computeModelShaderData(planeTransrom, viewMatrix, projectMatrix, colorPlane, shadowTextureUnit, param);
 
   // 传递shader参数
   passModelDataToShaderProgram(shaderProgram, planeData);
@@ -412,7 +428,7 @@ void ProjectShadowMapping::drawSecondPass() {
   plane.draw();
 
   // 计算shader所需变量值
-  ModelShaderParam teapotData = computeModelShaderData(teapotTransform, viewMatrix, projectMatrix, colorTeapot);
+  ModelShaderParam teapotData = computeModelShaderData(teapotTransform, viewMatrix, projectMatrix, colorTeapot, shadowTextureUnit, param);
 
   // 传递shader参数
   passModelDataToShaderProgram(shaderProgram, teapotData);
@@ -486,7 +502,7 @@ SpotLightShaderParam ProjectShadowMapping::computeLightShaderData(const glm::mat
   return res;
 }
 
-ModelShaderParam ProjectShadowMapping::computeModelShaderData(const Transform& trans, const glm::mat4 viewMat, const glm::mat4 projectMat, const glm::vec3 materialColor) {
+ModelShaderParam ProjectShadowMapping::computeModelShaderData(const Transform& trans, const glm::mat4 viewMat, const glm::mat4 projectMat, const glm::vec3 materialColor, GLuint shadowUnitIndex, CameraInLightParam camLightParam) {
   ModelShaderParam res{};
 
   // 计算模型mvp
@@ -499,10 +515,17 @@ ModelShaderParam ProjectShadowMapping::computeModelShaderData(const Transform& t
   // 计算法线mv
   glm::mat3 mvNormal = glm::transpose(glm::inverse(mv));
 
+  // 计算相机在light位置的mvp
+  glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
+  glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f - bias));
+  glm::mat4 mvpLight = translate * scale * camLightParam.projMat * camLightParam.viewMat * modelMat;
+
   res.color = materialColor;
   res.mv = mv;
   res.mvp = mvp;
   res.mvNormal = mvNormal;
+  res.shadowSampleUnitId = shadowUnitIndex;
+  res.mvpLight = mvpLight;
 
   return res;
 }
@@ -589,12 +612,44 @@ void ProjectShadowMapping::passModelDataToShaderProgram(GLuint shaderProgram, co
     //exit(EXIT_FAILURE);
   }
 
+  res = programUtil.glModifyUniformMat44("v_u_mv_light", data.mvpLight);
+  if (!res) {
+    //exit(EXIT_FAILURE);
+  }
+
   // 修改颜色
   res = programUtil.glModifyUniformVec3("f_u_color", data.color);
   if (!res) {
     //exit(EXIT_FAILURE);
   }
+
+  res = programUtil.glModifyUniformInt1("f_u_sample_shadow", data.shadowSampleUnitId);
+  if (!res) {
+
+  }
 }
+
+void ProjectShadowMapping::passModelDataToShaderProgram(GLuint shaderProgram, const SimpleShaderParam& data) {
+  // 查询并修改全局变量
+  ShaderProgramUtil programUtil(shaderProgram);
+
+  // 修改mvp矩阵
+  bool res = programUtil.glModifyUniformMat44("v_u_mvp", data.mvp);
+  if (!res) {
+    //exit(EXIT_FAILURE);
+  }
+}
+
+//void passSimpleModelDataToShaderProgram(GLuint shaderProgram, const SimpleShaderParam& data) {
+//  // 查询并修改全局变量
+//  ShaderProgramUtil programUtil(shaderProgram);
+//
+//  // 修改mvp矩阵
+//  bool res = programUtil.glModifyUniformMat44("v_u_mvp", data.mvp);
+//  if (!res) {
+//    //exit(EXIT_FAILURE);
+//  }
+//}
 
 void ProjectShadowMapping::passPlaneDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color) {
   // 查询并修改全局变量
@@ -628,6 +683,17 @@ void ProjectShadowMapping::passTeapotDataToShader(GLuint _shaderProgram, glm::ma
   if (!resModifyColor) {
     //exit(EXIT_FAILURE);
   }
+}
+
+SimpleShaderParam ProjectShadowMapping::computeModelShaderData(const Transform& trans, const glm::mat4 viewMat, const glm::mat4 projectMat) {
+  SimpleShaderParam res{};
+
+  // 计算模型mvp
+  glm::mat4 modelMat = trans.getMatrix();
+  glm::mat4 mvp = projectMat * viewMat * modelMat;
+
+  res.mvp = mvp;
+  return res;
 }
 
 void ProjectShadowMapping::passDataToShader1(GLuint shaderProgram) {

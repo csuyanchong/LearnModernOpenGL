@@ -17,39 +17,14 @@
 #include "../../camera/Camera.h"
 #include "../../light/Light.h"
 #include "../../transform/Transform.h"
-
-
-/// <summary>
-/// 灯光shader传入参数。
-/// </summary>
-class LightShaderParam {
-public:
-  glm::vec3 position;
-  glm::vec3 toward;
-  GLfloat angle;
-};
-
-class DirectionalLightShaderParam {
-public:
-  glm::vec3 direction;
-};
-
-class SpotLightShaderParam {
-public:
-  glm::vec3 position;
-  glm::vec3 toward;
-  GLfloat angle;
-};
+#include "../../shader/ShaderParam.h"
 
 /// <summary>
-/// 模型shader传入参数。
+/// 相机在灯光位置下的参数。
 /// </summary>
-class ModelShaderParam {
-public:
-  glm::mat4 mvp;
-  glm::mat4 mv;
-  glm::mat3 mvNormal;
-  glm::vec3 color;
+struct CameraInLightParam {
+  glm::mat4 viewMat;
+  glm::mat4 projMat;
 };
 
 class ProjectShadowMapping {
@@ -61,29 +36,34 @@ public:
   void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
 private:
+  GLuint createShaderProgram(const std::string& pathVert, const std::string& pathFrag);
+
   void createWindow();
   void createScene();
   void createRenderPipeline();
+
   void bindInput();
   void mainLoop();
+
+  CameraInLightParam drawFirstPass();
+  void drawSecondPass(const CameraInLightParam& param, const Transform& camTransform);
   void draw();
-  void drawFirstPass();
+
   void createFrameBuffer();
   GLuint createDepthTexture(GLuint width, GLuint height);
   GLuint createTextureObject(GLuint width, GLuint height);
   GLuint createRenderBufferObject(GLuint width, GLuint height, GLenum type);
-  void drawTarget(GLuint frameBufferId);
-  void passDataToShader2(GLuint shaderProgram);
-  void drawSecondPass();
   void setClearBuffer1(GLuint frameBufferId, GLfloat* clearColor, GLfloat* clearDepth);
   void computeShaderData();
   DirectionalLightShaderParam computeDirectionalLightShaderData(const glm::mat4 viewMat, const DirectionalLight& light);
   SpotLightShaderParam computeLightShaderData(const glm::mat4 viewMat, const SpotLight& light);
-  ModelShaderParam computeModelShaderData(const Transform& trans, const glm::mat4 viewMat, const glm::mat4 projectMat, const glm::vec3 materialColor);
+  ModelShaderParam computeModelShaderData(const Transform& trans, const glm::mat4 viewMat, const glm::mat4 projectMat, const glm::vec3 materialColor, GLuint shadowUnitIndex, CameraInLightParam camLightParam);
+  SimpleShaderParam computeModelShaderData(const Transform& trans, const glm::mat4 viewMat, const glm::mat4 projectMat);
   void computeShaderData(glm::vec3 pos, GLfloat rotation, GLfloat scale); 
   void passLightDataToShaderProgram(GLuint shaderProgram, const DirectionalLightShaderParam& data);
   void passLightDataToShaderProgram(GLuint shaderProgram, const SpotLightShaderParam& data);
   void passModelDataToShaderProgram(GLuint shaderProgram, const ModelShaderParam& data);
+  void passModelDataToShaderProgram(GLuint shaderProgram, const SimpleShaderParam& data);
   void passPlaneDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color);
   void passTeapotDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color);
   void passDataToShader1(GLuint shaderProgram);
@@ -167,15 +147,23 @@ private:
   /* 图形管线 */
   GLuint shaderProgram;
 
+  GLuint shaderSimpleProgram;
+
   /* shader文件地址 */
   std::string SHADER_DIR = "./data/shaders/";
 
   std::string shadow_map_vert_shader = "shadow_map_render.vert";
   std::string shadow_map_frag_shader = "shadow_map_render.frag";
 
+  std::string simple_vert_shader = "simple.vert";
+  std::string simple_frag_shader = "simple.frag";
+
   /* 当前使用的shader */
   std::string pathVertShader = SHADER_DIR + shadow_map_vert_shader;
   std::string pathFragShader = SHADER_DIR + shadow_map_frag_shader;
+
+  std::string pathSimpleVertShader = SHADER_DIR + simple_vert_shader;
+  std::string pathSimpleFragShader = SHADER_DIR + simple_frag_shader;
 
   /* 计算参数 */
   glm::mat4 modelView;
@@ -202,6 +190,11 @@ private:
   /* 纹理单元*/
   GLuint textureUnitTarget = 100;
   GLuint sampleUnit_1 = 0;
+
+  /* 阴影图纹理采样单元 */
+  GLuint shadowTextureUnit = 4;
+
+  GLfloat bias = 0.002f;
 };
 
 #endif // !SRC_PROJECT_SHADOW_PROJECTSHADOWMAPPING_H_
