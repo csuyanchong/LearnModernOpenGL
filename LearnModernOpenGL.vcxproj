@@ -268,6 +268,8 @@
     <None Include="bin\data\shaders\frag.glsl" />
     <None Include="bin\data\shaders\vert.glsl" />
     <None Include="data\shaders\blinn_phong.frag" />
+    <None Include="data\shaders\light_spot.frag" />
+    <None Include="data\shaders\light_spot.vert" />
     <None Include="data\shaders\render_to_texture.frag" />
     <None Include="data\shaders\render_to_texture.vert" />
     <None Include="data\shaders\shadow_map_render.frag" />

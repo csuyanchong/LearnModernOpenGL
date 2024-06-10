@@ -41,19 +41,30 @@ void ProjectShadowMapping::keyCallback(GLFWwindow* window, int key, int scancode
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
-  /* if (key == GLFW_KEY_W) {
-     camMain.moveForward(moveCamVerticalSpeed);
+   if (key == GLFW_KEY_W) {
+     //lightMoveVerticalSpeed += 0.1f;
+     spotLight.transform.position.z -= 0.1f;
    }
    if (key == GLFW_KEY_S) {
-     camMain.moveBack(moveCamVerticalSpeed);
+     lightMoveVerticalSpeed -= 0.1f;
+     spotLight.transform.position.z += 0.1f;
    }
 
    if (key == GLFW_KEY_A) {
-     camMain.moveLeft(moveCamHorizenSpeed);
+     spotLight.transform.position.x -= 0.1f;
    }
    if (key == GLFW_KEY_D) {
-     camMain.moveRight(moveCamHorizenSpeed);
-   }*/
+     spotLight.transform.position.x += 0.1f;
+     //camMain.moveRight(moveCamHorizenSpeed);
+   }
+
+   if (key == GLFW_KEY_Q) {
+     spotLight.transform.position.y -= 0.1f;
+   }
+   if (key == GLFW_KEY_E) {
+     spotLight.transform.position.y += 0.1f;
+     //camMain.moveRight(moveCamHorizenSpeed);
+   }
 
   if (key == GLFW_KEY_LEFT) {
     rotationTeapot -= 5.0f;
@@ -106,6 +117,104 @@ void ProjectShadowMapping::scrollCallback(GLFWwindow* window, double xoffset, do
     glm::vec3 positionNew = camMain.transform.position - dir * cameraMoveSpeed;
     camMain.transform.position = positionNew;
   }
+}
+
+void ProjectShadowMapping::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+  // 鼠标右键按下
+  if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+    //std::cout << "mouse_button_right pressed!" << std::endl;
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    lastPositionCursor.x = (float)xpos;
+    lastPositionCursor.y = (float)ypos;
+
+    isPressedMouseButtonRight = true;
+  }
+  if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+    //std::cout << "mouse_button_right released!" << std::endl;
+    isPressedMouseButtonRight = false;
+  }
+
+  // 鼠标中键按下
+  if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS) {
+    isPressedMouseButtonMiddle = true;
+  }
+  if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_RELEASE) {
+    //std::cout << "mouse_button_right released!" << std::endl;
+    isPressedMouseButtonMiddle = false;
+  }
+}
+
+void ProjectShadowMapping::cursorCallBack(GLFWwindow* window, double xpos, double ypos) {
+  //std::cout << xpos << "  " << ypos << std::endl;
+  if (isPressedMouseButtonRight) {
+    float speedRotate = 1.0f;
+    if (xpos < lastPositionCursor.x) {
+      camMain.transform.euler.y += speedRotate;
+    }
+    else if (xpos > lastPositionCursor.x) {
+      camMain.transform.euler.y -= speedRotate;
+    }
+
+    if (ypos < lastPositionCursor.y) {
+      camMain.transform.euler.x += speedRotate;
+    }
+    else if (ypos > lastPositionCursor.y) {
+      camMain.transform.euler.x -= speedRotate;
+    }
+  }
+
+  if (isPressedMouseButtonMiddle) {
+    float speedMove = 2.0f;
+    glm::vec2 position = glm::vec2((float)xpos, (float)ypos);
+     glm::vec2 offset = position - lastPositionCursor;
+    offset.x = offset.x / SCREEN_WIDTH * speedMove;
+    offset.y = offset.y / SCREEN_HEIGHT * speedMove;
+
+    camMain.transform.position += glm::vec3(offset, 0);
+
+    /*glm::vec3 xAxis = glm::vec3(1.0f, 0, 0);
+    glm::vec3 yAxis = glm::vec3(0, 1.0f, 0);
+
+    glm::mat4 matrix = camMain.transform.getMatrix();
+    glm::mat4 matrixInvert = glm::inverse(matrix);
+    glm::mat3 matrixInvert33 = matrixInvert;
+    glm::vec3 xAxisLocal = matrixInvert33 * xAxis;
+    glm::vec3 yAxisLocal = matrixInvert33 * yAxis;
+
+    glm::vec3 dirRight = glm::normalize(xAxisLocal);
+    glm::vec3 dirUp = glm::normalize(yAxisLocal);
+
+    glm::vec3 offsetLocalHorizen = -dirRight * offset.x;
+    glm::vec3 offsetLocalVertical = dirUp * offset.y;
+
+    glm::vec3 offsetLocal = offsetLocalHorizen + offsetLocalVertical;*/
+    //camMain.transform.position += offsetLocal;
+     
+    //glm::vec3 dir = glm::vec3(.0f);
+    //if (xpos < lastPositionCursor.x) {
+    //  //camMain.transform.position.x += speedMove;
+    //  dir.x = speedMove;
+    //}
+    //else if (xpos > lastPositionCursor.x) {
+    //  //camMain.transform.position.x -= speedMove;
+    //  dir.x = -speedMove;
+    //}
+
+    //if (ypos < lastPositionCursor.y) {
+    //  //camMain.transform.position.y -= speedMove;
+    //  dir.y = -speedMove;
+    //}
+    //else if (ypos > lastPositionCursor.y) {
+    //  //camMain.transform.position.y += speedMove;
+    //  dir.y = speedMove;
+    //}
+
+    //camMain.transform.position += dir;
+  }
+
+  lastPositionCursor.x = (float)xpos;
+  lastPositionCursor.y = (float)ypos;
 }
 
 GLuint ProjectShadowMapping::createShaderProgram(const std::string& pathVert, const std::string& pathFrag) {
@@ -170,6 +279,13 @@ void ProjectShadowMapping::createScene() {
     exit(EXIT_FAILURE);
   }
   
+  // 光源模型
+  bool res_load_light = light.loadFromFile(pathLight);
+  if (!res_load_light) {
+    std::cout << "从路径" + pathLight + "加载模型失败！";
+    exit(EXIT_FAILURE);
+  }
+
   // 平面变换设置
   planeTransrom.position = posPlane;
   planeTransrom.euler = glm::vec3(0, 0, 0);
@@ -198,6 +314,11 @@ void ProjectShadowMapping::createScene() {
   directionLight.transform.position = glm::vec3(0);
   directionLight.transform.euler = glm::vec3(0, 0, 0);
   directionLight.transform.scale = glm::vec3(1);
+
+  // 光源模型
+  lightTransform.position = spotLight.transform.position;
+  lightTransform.euler = spotLight.transform.euler;
+  lightTransform.scale = glm::vec3(0.1f);
 }
 
 void ProjectShadowMapping::createRenderPipeline() {
@@ -205,6 +326,7 @@ void ProjectShadowMapping::createRenderPipeline() {
 
   shaderProgram = createShaderProgram(pathVertShader, pathFragShader);
 
+  shaderLightProgram = createShaderProgram(pathLightVertShader, pathLightFragShader);
 }
 
 //GLuint ProjectShadowMapping::createShaderProgram(const std::string& pathVert, const std::string& pathFrag) {
@@ -233,11 +355,25 @@ void ProjectShadowMapping::bindInput() {
     static_cast<ProjectShadowMapping*>(glfwGetWindowUserPointer(window))->scrollCallback(window, xoffset, yoffset);
     };
 
+  auto callBackFunMouseButton = [](GLFWwindow* window, int button, int action, int mods) {
+    static_cast<ProjectShadowMapping*>(glfwGetWindowUserPointer(window))->mouseButtonCallback(window, button, action, mods);
+    };
+
+  auto callBackFunCursorPosition = [](GLFWwindow* window, double xpos, double ypos) {
+    static_cast<ProjectShadowMapping*>(glfwGetWindowUserPointer(window))->cursorCallBack(window, xpos, ypos);
+    };
+
   // 键盘事件回调
   glfwSetKeyCallback(window, callBackFunKey);
 
   // 鼠标滚轮事件回调
   glfwSetScrollCallback(window, callBackFunScroll);
+
+  // 鼠标按键事件回调
+  glfwSetMouseButtonCallback(window, callBackFunMouseButton);
+
+  // 鼠标位置回调
+  glfwSetCursorPosCallback(window, callBackFunCursorPosition);
 }
 
 void ProjectShadowMapping::mainLoop() {
@@ -435,6 +571,19 @@ void ProjectShadowMapping::drawSecondPass(const CameraInLightParam& param,const 
 
   // 绘制茶壶
   teapot.draw();
+
+  // 绘制光源
+  glUseProgram(shaderLightProgram);
+
+  lightTransform.position = spotLight.transform.position;
+  lightTransform.euler = spotLight.transform.euler;
+  // 计算shader所需参数
+  LightModelShaderParam lightData = computeModelShaderData(lightTransform, viewMatrix, projectMatrix, colorLightModel_frame);
+
+  // 传递参数到shader
+  passModelDataToShaderProgram(shaderLightProgram, lightData);
+
+  light.draw();
 }
 
 void ProjectShadowMapping::setClearBuffer1(GLuint frameBufferId, GLfloat* clearColor, GLfloat* clearDepth) {
@@ -640,6 +789,23 @@ void ProjectShadowMapping::passModelDataToShaderProgram(GLuint shaderProgram, co
   }
 }
 
+void ProjectShadowMapping::passModelDataToShaderProgram(GLuint shaderProgram, const LightModelShaderParam& data) {
+  // 查询并修改全局变量
+  ShaderProgramUtil programUtil(shaderProgram);
+
+  // 修改mvp矩阵
+  bool res = programUtil.glModifyUniformMat44("v_u_mvp", data.mvp);
+  if (!res) {
+    //exit(EXIT_FAILURE);
+  }
+
+  // 修改颜色
+  bool resModifyColor = programUtil.glModifyUniformVec3("f_u_color", data.colorFrame);
+  if (!resModifyColor) {
+    //exit(EXIT_FAILURE);
+  }
+}
+
 //void passSimpleModelDataToShaderProgram(GLuint shaderProgram, const SimpleShaderParam& data) {
 //  // 查询并修改全局变量
 //  ShaderProgramUtil programUtil(shaderProgram);
@@ -693,6 +859,18 @@ SimpleShaderParam ProjectShadowMapping::computeModelShaderData(const Transform& 
   glm::mat4 mvp = projectMat * viewMat * modelMat;
 
   res.mvp = mvp;
+  return res;
+}
+
+LightModelShaderParam ProjectShadowMapping::computeModelShaderData(const Transform& trans, const glm::mat4 viewMat, const glm::mat4 projectMat, const glm::vec3 color) {
+  LightModelShaderParam res{};
+
+  // 计算模型mvp
+  glm::mat4 modelMat = trans.getMatrix();
+  glm::mat4 mvp = projectMat * viewMat * modelMat;
+
+  res.mvp = mvp;
+  res.colorFrame = color;
   return res;
 }
 

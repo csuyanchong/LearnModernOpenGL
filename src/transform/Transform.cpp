@@ -12,16 +12,14 @@ Transform::Transform() {
   scale = glm::vec3(1.0f);
 }
 
-Transform& Transform::operator=(const Transform& other)
-{
+Transform& Transform::operator=(const Transform& other) {
   position = other.position;
   euler = other.euler;
   scale = other.scale;
   return *this;
 }
 
-glm::mat4 Transform::getMatrix() const
-{
+glm::mat4 Transform::getMatrix() const {
   /*glm::eulerAngleYXZ(euler.y, euler.x, euler.z);
   
   glm::mat4 modelMatrix = glm::mat4(1.0f);

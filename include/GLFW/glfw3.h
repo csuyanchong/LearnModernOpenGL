@@ -5304,7 +5304,7 @@ GLFWAPI GLFWcharmodsfun glfwSetCharModsCallback(GLFWwindow* window, GLFWcharmods
  *  void function_name(GLFWwindow* window, int button, int action, int mods)
  *  @endcode
  *  For more information about the callback parameters, see the
- *  [function pointer type](@ref GLFWmousebuttonfun).
+ *  [function pointer type](@ref C).
  *
  *  @errors Possible errors include @ref GLFW_NOT_INITIALIZED.
  *

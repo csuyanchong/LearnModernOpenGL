@@ -51,5 +51,9 @@ struct SimpleShaderParam {
   glm::mat4 mvp;
 };
 
+struct LightModelShaderParam {
+  glm::mat4 mvp;
+  glm::vec3 colorFrame;
+};
 #endif // !SRC_SHADER_SHADERPARAM_H_
 

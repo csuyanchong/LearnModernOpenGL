@@ -34,6 +34,8 @@ public:
   void run();
   void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
   void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+  void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+  void cursorCallBack(GLFWwindow* window, double xpos, double ypos);
 
 private:
   GLuint createShaderProgram(const std::string& pathVert, const std::string& pathFrag);
@@ -59,11 +61,13 @@ private:
   SpotLightShaderParam computeLightShaderData(const glm::mat4 viewMat, const SpotLight& light);
   ModelShaderParam computeModelShaderData(const Transform& trans, const glm::mat4 viewMat, const glm::mat4 projectMat, const glm::vec3 materialColor, GLuint shadowUnitIndex, CameraInLightParam camLightParam);
   SimpleShaderParam computeModelShaderData(const Transform& trans, const glm::mat4 viewMat, const glm::mat4 projectMat);
+  LightModelShaderParam computeModelShaderData(const Transform& trans, const glm::mat4 viewMat, const glm::mat4 projectMat, const glm::vec3 color);
   void computeShaderData(glm::vec3 pos, GLfloat rotation, GLfloat scale); 
   void passLightDataToShaderProgram(GLuint shaderProgram, const DirectionalLightShaderParam& data);
   void passLightDataToShaderProgram(GLuint shaderProgram, const SpotLightShaderParam& data);
   void passModelDataToShaderProgram(GLuint shaderProgram, const ModelShaderParam& data);
   void passModelDataToShaderProgram(GLuint shaderProgram, const SimpleShaderParam& data);
+  void passModelDataToShaderProgram(GLuint shaderProgram, const LightModelShaderParam& data);
   void passPlaneDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color);
   void passTeapotDataToShader(GLuint _shaderProgram, glm::mat4 _mvp, glm::vec3 _color);
   void passDataToShader1(GLuint shaderProgram);
@@ -87,6 +91,7 @@ private:
   Model plane;
   Model teapot;
   Model cube;
+  Model light;
 
   /* 模型文件地址 */
   const std::string MODELS_DIR = "./data/models/objmodel/";
@@ -98,6 +103,9 @@ private:
 
   std::string nameCube = "cube.obj";
   std::string pathCube = MODELS_DIR + nameCube;
+
+  std::string nameLight = "light.obj";
+  std::string pathLight = MODELS_DIR + "light/" + nameLight;
 
   glm::vec3 colorPlane = glm::vec3(0.8f, 0.8f, 0.8f);
   glm::vec3 colorTeapot = glm::vec3(1.0f, 0, 0);
@@ -124,6 +132,11 @@ private:
   GLfloat rotationPlane = 0;
   GLfloat scalePlane = 5.0f;
   
+  /* 聚光灯光源模型信息 */
+  Transform lightTransform;
+  glm::vec3 colorLightModel_frame = glm::vec3(0.58823532f);
+  glm::vec3 colorLightModel_light = glm::vec3(1.0f);
+
   /* 相机变换信息 */
   glm::vec3 posCamera = glm::vec3(0, 2, 3.8f);
   glm::vec3 eulerCamera = glm::vec3(-15, 0, 0);
@@ -149,6 +162,9 @@ private:
 
   GLuint shaderSimpleProgram;
 
+  /* 聚光灯shader程序 */
+  GLuint shaderLightProgram;
+
   /* shader文件地址 */
   std::string SHADER_DIR = "./data/shaders/";
 
@@ -158,12 +174,18 @@ private:
   std::string simple_vert_shader = "simple.vert";
   std::string simple_frag_shader = "simple.frag";
 
+  std::string light_vert_shader = "light_spot.vert";
+  std::string light_frag_shader = "light_spot.frag";
+
   /* 当前使用的shader */
   std::string pathVertShader = SHADER_DIR + shadow_map_vert_shader;
   std::string pathFragShader = SHADER_DIR + shadow_map_frag_shader;
 
   std::string pathSimpleVertShader = SHADER_DIR + simple_vert_shader;
   std::string pathSimpleFragShader = SHADER_DIR + simple_frag_shader;
+
+  std::string pathLightVertShader = SHADER_DIR + light_vert_shader;
+  std::string pathLightFragShader = SHADER_DIR + light_frag_shader;
 
   /* 计算参数 */
   glm::mat4 modelView;
@@ -173,7 +195,9 @@ private:
   glm::vec3 dirLight;
 
   /* 灯光旋转参数 */
-  GLfloat lightRotationSpeed = 0;
+  GLfloat lightRotationSpeed = .0f;
+  GLfloat lightMoveHorizenSpeed = .0f;
+  GLfloat lightMoveVerticalSpeed = .0f;
 
   /* 相机移动参数 */
   GLfloat cameraMoveSpeed = 0.1f;
@@ -195,6 +219,11 @@ private:
   GLuint shadowTextureUnit = 4;
 
   GLfloat bias = 0.002f;
+
+  /* 鼠标右键是否按下 */
+  bool isPressedMouseButtonRight= false;
+  bool isPressedMouseButtonMiddle = false;
+  glm::vec2 lastPositionCursor = glm::vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 };
 
 #endif // !SRC_PROJECT_SHADOW_PROJECTSHADOWMAPPING_H_

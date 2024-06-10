@@ -155,5 +155,7 @@
     <None Include="data\shaders\shadow_map_render.vert" />
     <None Include="data\shaders\simple.frag" />
     <None Include="data\shaders\simple.vert" />
+    <None Include="data\shaders\light_spot.vert" />
+    <None Include="data\shaders\light_spot.frag" />
   </ItemGroup>
 </Project>
