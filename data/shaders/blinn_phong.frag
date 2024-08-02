@@ -1,6 +1,6 @@
 #version 450 core
 
-layout (location = 0) out vec4 color;
+layout(location = 0) out vec4 color;
 
 in vec3 v_out_posView;
 in vec3 v_out_normal;
@@ -19,6 +19,11 @@ float intensitySpecular = 0.8f;
 float intensityAmbient =  0.25f;
 
 in vec2 v_out_texture_coord;
+
+vec3 linearToSRGB(vec3 color) {
+  vec3 res = pow(color, vec3 (1 / 2.2f));
+  return res;
+}
 
 vec3 computeDiffuse(vec3 _kd, float _cosTheta, float _intensity) {
   vec3 res = _kd * max(0, _cosTheta)  * _intensity;
@@ -39,14 +44,20 @@ vec3 computeAmbient(vec3 _ka, float _intensity) {
 }
 
 void main() {
-  float cosinTheta = dot(v_out_normal, u_dirLight);
+  vec3 dirNormal = normalize(v_out_normal);
+
+  vec3 dirLight = normalize(u_dirLight);
+
+  float cosinTheta = dot(dirNormal, dirLight);
 
   vec3 dirView = -v_out_posView;
 
-  vec3 dirHalf = normalize(u_dirLight + dirView);
+  dirView = normalize(dirView);
 
-  float cosinPhai = dot(dirHalf, v_out_normal);
+  vec3 dirHalf = normalize(dirLight + dirView);
 
+  float cosinPhai = dot(dirHalf, dirNormal);
+  
   // Blinn-phong shading
 
   // 1.漫反射
@@ -59,5 +70,7 @@ void main() {
   // 最终颜色
   vec3 colorFinal = colorDiffuse + colorSpecular + colorAmbient;
 
+  // gamma校正
+  colorFinal = linearToSRGB(colorFinal);
   color = vec4(colorFinal, 1.0f);
 }
