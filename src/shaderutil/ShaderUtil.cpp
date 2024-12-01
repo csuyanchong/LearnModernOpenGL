@@ -3,7 +3,7 @@
 #include <fstream>
 
 static std::string readShaderFromFile(const std::string& path) {
-  std::string res = "";
+  std::string res;
 
   std::ifstream file;
   file.open(path);
@@ -34,7 +34,7 @@ GLuint loadShader(std::vector<ShaderInfo>& shaders) {
     std::string sourceCode = readShaderFromFile(shaderInfo.filePath);
     const char* stringSource = sourceCode.c_str();
     // shader 填充源码
-    glShaderSource(shader, 1, &stringSource, NULL);
+    glShaderSource(shader, 1, &stringSource, nullptr);
     // 编译
     glCompileShader(shader);
     // 查看编译结果

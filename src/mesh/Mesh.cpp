@@ -20,7 +20,7 @@ void Mesh::draw() {
   glEnableVertexAttribArray(texcoordAttrId);
 
   // »æÖÆ
-  glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, NULL);
+  glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, nullptr);
 }
 
 std::vector<Vertex> Mesh::getVertices() const {

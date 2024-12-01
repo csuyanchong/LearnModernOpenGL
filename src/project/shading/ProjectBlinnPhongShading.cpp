@@ -55,7 +55,7 @@ void ProjectBlinnPhongShading::initSetup() {
   glfwWindowHint(GLFW_POSITION_X, WINDOW_POSITION_X);
   glfwWindowHint(GLFW_POSITION_Y, WINDOW_POSITION_Y);
   // 创建窗口
-  window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "LearnMordenOpenGL", NULL, NULL);
+  window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "BlinnPhongShading", nullptr, nullptr);
   //glfwSetWindowPos(window, SCREEN_POSITION_X, SCREEN_POSITION_Y);
   glfwMakeContextCurrent(window);
   // 初始化gl3w
@@ -155,7 +155,7 @@ void ProjectBlinnPhongShading::preCompute() {
 
   glm::mat4 viewMatrix = camMain.getViewMatrix();
 
-  glm::mat4 projectMatrix = glm::perspective(glm::radians(FOV), (float)SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
+  glm::mat4 projectMatrix = glm::perspective(glm::radians(FOV), static_cast<float>(SCREEN_WIDTH) / static_cast<float>(SCREEN_HEIGHT), NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
 
   modelView = viewMatrix * modelMatrix;
   modelViewProjection = projectMatrix * viewMatrix * modelMatrix;
