@@ -399,3 +399,4 @@ FodyWeavers.xsd
 
 # This Project 
 !data/**
+/.idea
